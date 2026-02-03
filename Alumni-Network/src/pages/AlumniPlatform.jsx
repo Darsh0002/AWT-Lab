@@ -665,70 +665,6 @@ export default function AlumniPlatform() {
                 </div>
               </div>
             </div>
-
-            {/* Resources */}
-            <div>
-              <h4 className="text-lg font-bold text-white mb-6">Resources</h4>
-              <ul className="space-y-3 text-sm">
-                <li>
-                  <a href="#" className="hover:text-blue-400 transition-colors">
-                    Case Studies
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-blue-400 transition-colors">
-                    Best Practices
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-blue-400 transition-colors">
-                    Implementation Guide
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-blue-400 transition-colors">
-                    Webinars & Events
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-blue-400 transition-colors">
-                    Help Center
-                  </a>
-                </li>
-              </ul>
-            </div>
-
-            {/* Company */}
-            <div>
-              <h4 className="text-lg font-bold text-white mb-6">Company</h4>
-              <ul className="space-y-3 text-sm">
-                <li>
-                  <a href="#" className="hover:text-blue-400 transition-colors">
-                    About Us
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-blue-400 transition-colors">
-                    Leadership Team
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-blue-400 transition-colors">
-                    Careers
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-blue-400 transition-colors">
-                    Press & Media
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-blue-400 transition-colors">
-                    Contact Sales
-                  </a>
-                </li>
-              </ul>
-            </div>
           </div>
         </div>
 
@@ -746,9 +682,6 @@ export default function AlumniPlatform() {
         </div>
       </footer>
 
-      {/* <Chatbot/> */}
-
-      
     </div>
   );
 }
