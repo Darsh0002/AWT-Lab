@@ -1,6 +1,8 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import AlumniPlatform from "./pages/AlumniPlatform";
+import LoginPage from "./pages/LoginPage.jsx";
+import Navbar from "./components/Navbar";
 
 const App = () => {
   return (
