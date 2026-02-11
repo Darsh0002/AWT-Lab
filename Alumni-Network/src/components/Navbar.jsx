@@ -27,7 +27,6 @@ export default function Navbar() {
     { name: "Alumni Directory", path: "/alumni-directory" },
     { name: "Mentorship", path: "/mentorship" },
     { name: "Jobs", path: "/jobs" },
-    { name: "Scholarships", path: "/scholarships" },
     { name: "Posts", path: "/posts" },
     { name: "Donate", path: "/donate" },
     { name: "Events", path: "/events" },

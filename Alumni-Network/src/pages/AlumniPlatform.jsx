@@ -79,7 +79,7 @@ export default function AlumniPlatform() {
     },
     {
       icon: CreditCard,
-      title: "Blockchain-Secured Donation Portal",
+      title: "Secure Donation Portal",
       desc: "A portal that ensures transparent and secure financial contributions from alumni to their alma mater.",
     },
     {
@@ -98,20 +98,10 @@ export default function AlumniPlatform() {
       desc: "A model designed to facilitate meaningful interactions among alumni, which enhances knowledge sharing and professional growth within the community.",
     },
     {
-      icon: Trophy,
-      title: "Gamification and Rewards",
-      desc: "A system that uses gamification to boost user engagement and provides rewards for participation.",
-    },
-    {
       icon: Users,
       title: "Alumni Start-up Incubator",
       desc: "A feature that supports and incubates start-ups founded by alumni, fostering entrepreneurship within the community.",
-    },
-    {
-      icon: Wallet,
-      title: "Scholarship Support",
-      desc: "Facilitates scholarship and financial aid contributions from alumni to support current students, with transparent tracking.",
-    },
+    }
   ];
 
   const stats = [
