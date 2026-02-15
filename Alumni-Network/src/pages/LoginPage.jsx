@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const roles = [
   { label: "Institute", value: "institute" },
@@ -11,6 +12,47 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [remember, setRemember] = useState(false);
+
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!email || !password) {
+      alert("Email and password are required");
+      return;
+    }
+
+    try {
+      const response = await fetch("http://localhost:5000/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email,
+          password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        alert(data.message || "Login failed");
+        return;
+      }
+
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("user", JSON.stringify(data.user));
+
+      alert("Login successful");
+
+      navigate("/dashboard");
+    } catch (error) {
+      console.error(error);
+      alert("Server error. Try again.");
+    }
+  };  
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 via-indigo-100 to-purple-100 p-0 m-0">
@@ -34,7 +76,7 @@ export default function LoginPage() {
   <div className="md:w-1/2 flex flex-col justify-center p-4 md:p-6 bg-white/90">
           <div className="max-w-xs w-full mx-auto">
             <h1 className="text-xl md:text-2xl font-extrabold mb-4 text-center text-indigo-700 tracking-tight">Login to your account</h1>
-            <form className="space-y-4">
+            <form className="space-y-4" onSubmit={handleSubmit}>
               <div>
                 <label className="block font-semibold mb-2 text-blue-700">Select Role</label>
                 <select
