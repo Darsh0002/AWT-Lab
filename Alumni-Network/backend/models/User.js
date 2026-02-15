@@ -4,7 +4,7 @@ const userSchema = new mongoose.Schema(
   {
     role: {
       type: String,
-      enum: ["student", "alumni", "institute"],
+      enum: ["student", "admin"],
       required: true,
     },
     email: {
@@ -19,7 +19,7 @@ const userSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 module.exports = mongoose.model("User", userSchema);

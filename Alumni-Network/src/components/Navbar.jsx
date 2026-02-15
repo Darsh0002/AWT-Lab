@@ -23,9 +23,7 @@ export default function Navbar() {
   }, [location]);
 
   const navItems = [
-    { name: "Dashboard", path: "/dashboard" },
     { name: "Alumni Directory", path: "/alumni-directory" },
-    { name: "Mentorship", path: "/mentorship" },
     { name: "Jobs", path: "/jobs" },
     { name: "Posts", path: "/posts" },
     { name: "Donate", path: "/donate" },
@@ -70,7 +68,7 @@ export default function Navbar() {
                 </Link>
               ))}
 
-              <Link
+              {/* <Link
                 to="/login"
                 onClick={() => setShowLogin(true)}
                 className="px-2.5 md:px-3 py-1 md:py-1.5 rounded text-xs md:text-sm font-medium hover:scale-105 transform transition bg-slate-300 text-slate-800"
@@ -83,7 +81,7 @@ export default function Navbar() {
                 className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-2.5 md:px-3 py-1 md:py-1.5 rounded text-xs md:text-sm font-medium hover:shadow-lg hover:from-blue-700 hover:to-indigo-700 transform hover:scale-105 transition"
               >
                 Register Institute
-              </Link>
+              </Link> */}
             </div>
 
             {/* Mobile Toggle */}

@@ -29,7 +29,7 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 
-export default function AlumniPlatform() {
+export default function LandingPage() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [activeTestimonial, setActiveTestimonial] = useState(0);

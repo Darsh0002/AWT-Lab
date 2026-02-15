@@ -1,8 +1,10 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import AlumniPlatform from "./pages/AlumniPlatform";
 import LoginPage from "./pages/LoginPage";
 import Navbar from "./components/Navbar";
+import LandingPage from "./pages/LandingPage";
+import AdminDashboard from "./pages/AdminDashboard";
+import StudentDashboard from "./pages/StudentDashboard";
 
 const App = () => {
   return (
@@ -13,20 +15,28 @@ const App = () => {
           path="/"
           element={
             <>
-              <Navbar /> 
-              <AlumniPlatform />
+              {/* <Navbar />  */}
+              <LandingPage />
             </>
           }
         />
-       {/*<Route*/}
-       {/*   path="/dashboard"*/}
-       {/*   element={*/}
-       {/*     <>*/}
-       {/*       <Navbar />*/}
-       {/*       <Dashboard />*/}
-       {/*     </>*/}
-       {/*   }*/}
-       {/* />*/}
+        <Route
+          path="/admin-dashboard"
+          element={
+            <>
+              <AdminDashboard />
+            </>
+          }
+        />
+        <Route
+          path="/student-dashboard"
+          element={
+            <>
+              <Navbar />
+              <StudentDashboard />
+            </>
+          }
+        />
         <Route
           path="/login"
           element={
@@ -56,30 +66,13 @@ const App = () => {
         {/*/> */}
 
         {/* New pages */}
-        {/* <Route
-          path="/mentorship"
-          element={
-            <>
-              <Navbar />
-              <Mentorship />
-            </>
-          }
-        />
+        {/* 
         <Route
           path="/jobs"
           element={
             <>
               <Navbar />
               <Jobs />
-            </>
-          }
-        />
-        <Route
-          path="/scholarships"
-          element={
-            <>
-              <Navbar />
-              <Scholarships />
             </>
           }
         />
