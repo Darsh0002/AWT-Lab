@@ -47,7 +47,7 @@ const App = () => {
           }
         />
         <Route
-          path="/register"
+          path="/register-institute"
           element={
             <>
               <RegisterInstitute/>

@@ -25,13 +25,39 @@ const RegisterInstitute = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Simulate form submission
-    setSuccess(true);
-    setTimeout(() => setSuccess(false), 3000);
-    navigate('/admin-dashboard');
-    console.log(formData);
+
+    try {
+      const response = await fetch(
+        "http://localhost:5000/api/auth/register-institute",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(formData),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        alert(data.message || "Registration failed");
+        return;
+      }
+
+      setSuccess(true);
+
+      alert(
+        `Institute registered successfully!\n\nAdmin Email: ${data.adminLogin.email}\nTemporary Password: ${data.adminLogin.temporaryPassword}\n\nPlease save these credentials.`
+      );
+
+      navigate("/login");
+    } catch (error) {
+      console.error(error);
+      alert("Server error. Please try again later.");
+    }
   };
 
   return (
