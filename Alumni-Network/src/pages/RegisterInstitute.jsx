@@ -1,27 +1,39 @@
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import { FaUniversity, FaEnvelope, FaPhone, FaMapMarkerAlt, FaGlobe, FaCalendarAlt, FaCity, FaFlag, FaHashtag } from 'react-icons/fa';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from "react";
+import { motion } from "framer-motion";
+import {
+  FaUniversity,
+  FaEnvelope,
+  FaPhone,
+  FaMapMarkerAlt,
+  FaGlobe,
+  FaCalendarAlt,
+  FaCity,
+  FaFlag,
+  FaHashtag,
+  FaLock,
+} from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 
 const RegisterInstitute = () => {
   const [formData, setFormData] = useState({
-    instituteName: '',
-    email: '',
-    phone: '',
-    address: '',
-    city: '',
-    state: '',
-    pincode: '',
-    website: '',
+    instituteName: "",
+    email: "",
+    phone: "",
+    address: "",
+    city: "",
+    state: "",
+    website: "",
+    password: "",
+    confirmPassword: "",
   });
   const [success, setSuccess] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
@@ -37,7 +49,7 @@ const RegisterInstitute = () => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify(formData),
-        }
+        },
       );
 
       const data = await response.json();
@@ -50,7 +62,7 @@ const RegisterInstitute = () => {
       setSuccess(true);
 
       alert(
-        `Institute registered successfully!\n\nAdmin Email: ${data.adminLogin.email}\nTemporary Password: ${data.adminLogin.temporaryPassword}\n\nPlease save these credentials.`
+        `Institute registered successfully!\n\nAdmin Email: ${data.adminLogin.email}\nTemporary Password: ${data.adminLogin.temporaryPassword}\n\nPlease save these credentials.`,
       );
 
       navigate("/login");
@@ -71,9 +83,15 @@ const RegisterInstitute = () => {
         <div className="flex flex-col items-center mt-5 mb-6">
           <div className="bg-blue-600 rounded-full p-3 shadow-lg mb-2">
             {/* SVG logo */}
-            <img src="/favicon-alumnet.svg" alt="Alumni Logo" className="w-12 h-12" />
+            <img
+              src="/favicon-alumnet.svg"
+              alt="Alumni Logo"
+              className="w-12 h-12"
+            />
           </div>
-          <h2 className="text-4xl font-extrabold text-gray-900 mb-1 tracking-tight">Register Your Institute</h2>
+          <h2 className="text-4xl font-extrabold text-gray-900 mb-1 tracking-tight">
+            Register Your Institute
+          </h2>
           <p className="mt-2 text-lg text-gray-700 text-center max-w-xl">
             Join our alumni network platform and connect with your graduates
           </p>
@@ -94,7 +112,10 @@ const RegisterInstitute = () => {
             <div className="grid grid-cols-1 gap-y-7 gap-x-6 sm:grid-cols-2">
               {/* Institute Name */}
               <div className="relative">
-                <label htmlFor="instituteName" className="block text-sm font-semibold text-blue-700 mb-1">
+                <label
+                  htmlFor="instituteName"
+                  className="block text-sm font-semibold text-blue-700 mb-1"
+                >
                   Institute Name
                 </label>
                 <div className="flex items-center">
@@ -113,7 +134,10 @@ const RegisterInstitute = () => {
 
               {/* Email */}
               <div className="relative">
-                <label htmlFor="email" className="block text-sm font-semibold text-blue-700 mb-1">
+                <label
+                  htmlFor="email"
+                  className="block text-sm font-semibold text-blue-700 mb-1"
+                >
                   Email
                 </label>
                 <div className="flex items-center">
@@ -132,7 +156,10 @@ const RegisterInstitute = () => {
 
               {/* Phone */}
               <div className="relative">
-                <label htmlFor="phone" className="block text-sm font-semibold text-blue-700 mb-1">
+                <label
+                  htmlFor="phone"
+                  className="block text-sm font-semibold text-blue-700 mb-1"
+                >
                   Phone Number
                 </label>
                 <div className="flex items-center">
@@ -151,7 +178,10 @@ const RegisterInstitute = () => {
 
               {/* Website */}
               <div className="relative">
-                <label htmlFor="website" className="block text-sm font-semibold text-blue-700 mb-1">
+                <label
+                  htmlFor="website"
+                  className="block text-sm font-semibold text-blue-700 mb-1"
+                >
                   Website
                 </label>
                 <div className="flex items-center">
@@ -169,7 +199,10 @@ const RegisterInstitute = () => {
 
               {/* Address */}
               <div className="sm:col-span-2 relative">
-                <label htmlFor="address" className="block text-sm font-semibold text-blue-700 mb-1">
+                <label
+                  htmlFor="address"
+                  className="block text-sm font-semibold text-blue-700 mb-1"
+                >
                   Address
                 </label>
                 <div className="flex items-center">
@@ -188,7 +221,10 @@ const RegisterInstitute = () => {
 
               {/* City */}
               <div className="relative">
-                <label htmlFor="city" className="block text-sm font-semibold text-blue-700 mb-1">
+                <label
+                  htmlFor="city"
+                  className="block text-sm font-semibold text-blue-700 mb-1"
+                >
                   City
                 </label>
                 <div className="flex items-center">
@@ -207,7 +243,10 @@ const RegisterInstitute = () => {
 
               {/* State */}
               <div className="relative">
-                <label htmlFor="state" className="block text-sm font-semibold text-blue-700 mb-1">
+                <label
+                  htmlFor="state"
+                  className="block text-sm font-semibold text-blue-700 mb-1"
+                >
                   State
                 </label>
                 <div className="flex items-center">
@@ -224,18 +263,43 @@ const RegisterInstitute = () => {
                 </div>
               </div>
 
-              {/* Pincode */}
+              {/* Password */}
               <div className="relative">
-                <label htmlFor="pincode" className="block text-sm font-semibold text-blue-700 mb-1">
-                  Pincode
+                <label
+                  htmlFor="password"
+                  className="block text-sm font-semibold text-blue-700 mb-1"
+                >
+                  Password
                 </label>
                 <div className="flex items-center">
-                  <FaHashtag className="absolute ml-3 text-blue-400 text-lg" />
+                  <FaLock className="absolute ml-3 text-blue-400 text-lg" />
                   <input
-                    type="text"
-                    name="pincode"
-                    id="pincode"
-                    value={formData.pincode}
+                    type="password"
+                    name="password"
+                    id="password"
+                    value={formData.password}
+                    onChange={handleChange}
+                    required
+                    className="pl-10 pr-3 py-2 w-full border border-blue-200 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition-all duration-200 bg-blue-50"
+                  />
+                </div>
+              </div>
+
+              {/* Confirm Password */}
+              <div className="relative">
+                <label
+                  htmlFor="confirmPassword"
+                  className="block text-sm font-semibold text-blue-700 mb-1"
+                >
+                  Confirm Password
+                </label>
+                <div className="flex items-center">
+                  <FaLock className="absolute ml-3 text-blue-400 text-lg" />
+                  <input
+                    type="password"
+                    name="confirmPassword"
+                    id="confirmPassword"
+                    value={formData.confirmPassword}
                     onChange={handleChange}
                     required
                     className="pl-10 pr-3 py-2 w-full border border-blue-200 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition-all duration-200 bg-blue-50"
@@ -246,7 +310,7 @@ const RegisterInstitute = () => {
 
             <div className="flex items-center justify-center mt-6">
               <motion.button
-                whileHover={{ scale: 1.05, backgroundColor: '#2563eb' }}
+                whileHover={{ scale: 1.05, backgroundColor: "#2563eb" }}
                 whileTap={{ scale: 0.97 }}
                 type="submit"
                 className="w-full sm:w-auto flex justify-center py-3 px-8 border border-transparent rounded-xl shadow-lg text-lg font-bold text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-400 transition-all duration-200"
