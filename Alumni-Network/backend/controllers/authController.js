@@ -1,6 +1,8 @@
 const bcrypt = require("bcryptjs");
 const User = require("../models/User");
 const Institute = require("../models/Institute");
+const jwt = require("jsonwebtoken");
+
 
 const register = async (req, res) => {
   try {
@@ -116,14 +118,48 @@ const registerInstitute = async (req, res) => {
 };
 
 const login = async (req, res) => {
-  const { email, password } = req.body;
+  try {
+    const { email, password, role } = req.body;
 
-  res.json({
-    success: true,
-    message: "Login API (will be improved next)",
-    email,
-  });
+    if (!email || !password || !role) {
+      return res.status(400).json({ message: "Email, password and role required" });
+    }
+
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(401).json({ message: "Invalid email or password" });
+    }
+
+    if (user.role !== role) {
+      return res.status(403).json({ message: "Unauthorized role access" });
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(401).json({ message: "Invalid email or password" });
+    }
+
+    const token = jwt.sign(
+      { id: user._id, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: "1d" }
+    );
+
+    res.json({
+      success: true,
+      token,
+      user: {
+        id: user._id,
+        email: user.email,
+        role: user.role,
+      },
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
 };
+
 
 module.exports = {
   register,
