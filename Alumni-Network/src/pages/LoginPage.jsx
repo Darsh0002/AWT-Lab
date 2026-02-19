@@ -30,6 +30,7 @@ export default function LoginPage() {
         body: JSON.stringify({
           email,
           password,
+          role,
         }),
       });
 
@@ -45,7 +46,7 @@ export default function LoginPage() {
 
       alert("Login successful");
 
-      if (role === "admin") {
+      if (data.user.role === "admin") {
         navigate("/admin-dashboard");
       } else {
         navigate("/student-dashboard");
