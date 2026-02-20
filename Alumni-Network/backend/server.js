@@ -22,8 +22,11 @@ const authRoutes = require("./routes/authRoutes");
 app.use("/api/auth", authRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 
-const uploadRoutes = require("./routes/uploadExcel");
-app.use("/", uploadRoutes);
+const uploadExcelRoutes = require("./routes/uploadExcel");
+app.use("/api/admin", uploadExcelRoutes);
+
+const adminStudentRoutes = require("./routes/adminStudents");
+app.use("/api/admin", adminStudentRoutes);
 
 app.get("/", (req, res) => {
   res.send("Backend running with DB");

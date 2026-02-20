@@ -332,7 +332,16 @@ const AdminDashboard = () => {
     formData.append("file", file);
 
     try {
-      await axios.post("http://localhost:5000/upload-excel", formData);
+      await axios.post(
+      "http://localhost:5000/api/admin/upload-excel",
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      }
+    );
       toast.success("Excel file uploaded successfully!");
       setFile(null);
       if (fileInputRef.current) {
