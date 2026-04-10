@@ -1,62 +1,28 @@
-import React, { useState } from "react";
-
-// Data
-const featuredEvents = [
-  {
-    title: "Annual Alumni Gala 2024",
-    description:
-      "Join us for an elegant evening celebrating our alumni achievements and fostering new connections.",
-    date: "Sunday, December 15, 2024",
-    time: "6:00 PM - 11:00 PM",
-    location: "Grand Ballroom, Marriott Hotel, New York, NY",
-    attendees: 250,
-    price: "$75",
-    tags: ["Featured", "Networking"],
-  },
-  {
-    title: "Healthcare Leaders Summit",
-    description:
-      "Annual summit bringing together healthcare professionals to discuss industry trends and innovations.",
-    date: "Sunday, December 8, 2024",
-    time: "9:00 AM - 5:00 PM",
-    location: "Medical Center Conference Hall, Boston, MA",
-    attendees: 120,
-    price: "$50",
-    tags: ["Featured", "Professional"],
-  },
-];
-
-const upcomingEvents = [
-  {
-    title: "Tech Industry Meetup",
-    date: "28/11/2024",
-    location: "San Francisco, CA",
-    attendees: 85,
-    price: "Free",
-    tag: "Professional",
-  },
-  {
-    title: "Young Alumni Happy Hour",
-    date: "22/11/2024",
-    location: "Chicago, IL",
-    attendees: 45,
-    price: "$25",
-    tag: "Social",
-  },
-  {
-    title: "Entrepreneurship Workshop",
-    date: "01/12/2024",
-    location: "Austin, TX",
-    attendees: 60,
-    price: "$40",
-    tag: "Educational",
-  },
-];
+import React, { useState, useEffect, useContext } from "react";
+import { AppContext } from "../context/AppContext";
+import toast from "react-hot-toast";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  Calendar,
+  MapPin,
+  Users,
+  Clock,
+  Plus,
+  ArrowRight,
+  Sparkles,
+  ChevronRight,
+  Filter,
+  X,
+  Target,
+  Trophy,
+  Globe
+} from "lucide-react";
+import { Link } from "react-router-dom";
 
 const categories = ["Professional", "Social", "Educational", "Networking"];
 
 const Events = () => {
-  // State management
+  const { events, fetchFeed } = useContext(AppContext);
   const [showProposalForm, setShowProposalForm] = useState(false);
   const [proposalForm, setProposalForm] = useState({
     title: "",
@@ -64,15 +30,13 @@ const Events = () => {
     date: "",
     time: "",
     location: "",
-    category: "Professional", // Added initial category
+    category: "Professional",
     expectedAttendees: "",
   });
 
-  // Handle proposal form submission
   const handleProposalSubmit = (e) => {
     e.preventDefault();
-    console.log("Event proposal submitted:", proposalForm);
-    alert("Event proposal submitted successfully!");
+    toast.success("Event proposal submitted successfully! Our team will review it soon.");
     setShowProposalForm(false);
     setProposalForm({
       title: "",
@@ -85,7 +49,6 @@ const Events = () => {
     });
   };
 
-  // Handle form input changes
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setProposalForm((prev) => ({
@@ -94,341 +57,297 @@ const Events = () => {
     }));
   };
 
+  useEffect(() => {
+    fetchFeed();
+  }, []);
+
+  const featuredEvents = events.slice(0, 2);
+  const upcomingEvents = events.slice(2);
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: { staggerChildren: 0.1 }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: { y: 0, opacity: 1 }
+  };
+
   return (
-    <div className="bg-slate-50 min-h-screen pb-12">
-      {/* Hero Section */}
-      <div
-        className="relative bg-cover bg-top py-24 mb-12 rounded-b-3xl shadow-2xl"
-        style={{ backgroundImage: "url('/login-image.jpg')" }}
-      >
-        <div className="absolute inset-0 bg-black/60 rounded-b-3xl"></div>
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-white">
-          <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight">
-            Discover & Connect at Alumni Events
-          </h1>
-          <p className="mt-4 text-xl md:text-2xl text-blue-100 max-w-3xl mx-auto">
-            Your central hub for all upcoming gatherings, workshops, and
-            reunions. Reconnect, learn, and grow with your peers.
-          </p>
-          <div className="mt-10 flex flex-wrap justify-center gap-6">
-            <div className="bg-white/20 backdrop-blur-md rounded-xl p-4 flex items-center gap-4 transform hover:scale-110 transition-transform duration-300">
-              <span className="text-3xl">🎯</span>
-              <div>
-                <p className="text-white font-semibold text-lg">10+ Events</p>
-                <p className="text-blue-100">This Month</p>
-              </div>
+    <div className="min-h-screen bg-[#f8fafc] pb-24 font-inter">
+      {/* Premium Hero Section */}
+      <section className="relative pt-32 pb-48 overflow-hidden bg-slate-950">
+        <div className="absolute inset-0 z-0 opacity-40">
+          <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-600/20 rounded-full blur-[120px] -mr-40 -mt-40" />
+          <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-blue-600/10 rounded-full blur-[100px] -ml-20 -mb-20" />
+        </div>
+        
+        <div className="container mx-auto px-6 relative z-10 text-center">
+          <motion.div 
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="max-w-4xl mx-auto"
+          >
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-indigo-300 text-xs font-black uppercase tracking-[0.2em] mb-8 backdrop-blur-md">
+              <Sparkles size={14} className="animate-pulse" /> Community Gatherings
             </div>
-            <div className="bg-white/20 backdrop-blur-md rounded-xl p-4 flex items-center gap-4 transform hover:scale-110 transition-transform duration-300">
-              <span className="text-3xl">👥</span>
-              <div>
-                <p className="text-white font-semibold text-lg">500+ Alumni</p>
-                <p className="text-blue-100">Participating</p>
-              </div>
+            <h1 className="text-5xl md:text-7xl font-black text-white mb-8 font-outfit tracking-tight">
+              Reconnect & <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-cyan-400">Collaborate.</span>
+            </h1>
+            <p className="text-slate-400 text-lg md:text-xl font-medium leading-relaxed mb-12 max-w-2xl mx-auto">
+              Your central hub for global alumni meets, industry panels, and professional workshops.
+            </p>
+            
+            <div className="flex flex-wrap justify-center gap-8">
+              {[
+                { label: "Planned Events", value: "10+", icon: Target },
+                { label: "Active Alumni", value: "500+", icon: Users },
+                { label: "Global Presence", value: "12+", icon: Globe },
+              ].map((stat, i) => (
+                <div key={i} className="flex items-center gap-4 px-6 py-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md">
+                  <stat.icon size={24} className="text-indigo-400" />
+                  <div className="text-left">
+                    <p className="text-white font-black text-xl leading-none font-outfit">{stat.value}</p>
+                    <p className="text-slate-500 text-[9px] font-black uppercase tracking-widest mt-1">{stat.label}</p>
+                  </div>
+                </div>
+              ))}
             </div>
-            <div className="bg-white/20 backdrop-blur-md rounded-xl p-4 flex items-center gap-4 transform hover:scale-110 transition-transform duration-300">
-              <span className="text-3xl">🌍</span>
-              <div>
-                <p className="text-white font-semibold text-lg">5+ Cities</p>
-                <p className="text-blue-100">Worldwide</p>
-              </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Main Content */}
+      <div className="container mx-auto px-6 -mt-24 relative z-20">
+        {/* Featured Section */}
+        <div className="mb-20">
+          <div className="flex justify-between items-end mb-10">
+            <div>
+              <h2 className="text-[10px] font-black uppercase tracking-[0.3em] text-indigo-600 mb-2">Editor's Choice</h2>
+              <h3 className="text-4xl font-black text-slate-900 font-outfit tracking-tight uppercase">Featured Events</h3>
+            </div>
+            <div className="hidden md:flex gap-4">
+              <button className="p-4 rounded-2xl bg-white text-slate-400 border border-slate-100 hover:text-indigo-600 hover:border-indigo-100 transition-all shadow-sm">
+                <Filter size={20} />
+              </button>
             </div>
           </div>
-        </div>
-      </div>
 
-      {/* Main Content Wrapper */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Featured Events Section */}
-        <h2 className="text-3xl font-bold text-slate-800 mb-8">
-          Featured Events
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
-          {featuredEvents.map((event, idx) => (
-            <div
-              key={idx}
-              className="bg-white rounded-2xl shadow-lg overflow-hidden transform hover:scale-105 transition-transform duration-300"
-            >
-              <div className="bg-gradient-to-r from-blue-500 to-indigo-500 text-white p-6 relative">
-                <div className="absolute top-4 left-4 bg-yellow-400 text-blue-800 rounded-full text-xs font-semibold px-3 py-1">
-                  {event.tags[0]}
-                </div>
-                <div className="absolute top-4 right-4 bg-yellow-400 text-blue-800 rounded-full text-xs font-semibold px-3 py-1">
-                  {event.tags[1]}
-                </div>
-                <div className="text-center mt-8">
-                  <span className="text-6xl">📅</span>
-                </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+            {featuredEvents.length > 0 ? (
+              featuredEvents.map((event, i) => (
+                <motion.div 
+                  key={i}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  className="group bg-white rounded-[2.5rem] overflow-hidden shadow-xl border border-slate-100 hover:shadow-2xl hover:translate-y-[-4px] transition-all duration-500"
+                >
+                  <div className="h-64 bg-slate-900 relative overflow-hidden">
+                    <div className="absolute inset-0 bg-gradient-to-br from-indigo-600/80 to-slate-950 opacity-90 transition-opacity group-hover:opacity-100" />
+                    <div className="absolute top-6 left-6 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white text-[10px] font-black uppercase tracking-widest">
+                      Featured Experience
+                    </div>
+                    <div className="absolute inset-0 flex items-center justify-center opacity-10 group-hover:scale-110 transition-transform duration-700">
+                      <Trophy size={160} className="text-white" />
+                    </div>
+                    <div className="absolute bottom-6 left-6 right-6">
+                      <div className="flex items-center gap-2 text-indigo-300 text-[10px] font-black uppercase tracking-widest mb-2">
+                        <Calendar size={12} /> {new Date(event.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+                      </div>
+                      <h4 className="text-3xl font-black text-white font-outfit tracking-tight uppercase leading-none">{event.title}</h4>
+                    </div>
+                  </div>
+                  <div className="p-10">
+                    <p className="text-slate-500 font-medium leading-relaxed mb-8 line-clamp-2 italic">"{event.description}"</p>
+                    <div className="grid grid-cols-2 gap-6 mb-10">
+                      <div className="flex items-center gap-3 text-slate-600">
+                        <div className="p-2.5 rounded-xl bg-slate-50 text-slate-400">
+                          <MapPin size={18} />
+                        </div>
+                        <div>
+                          <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Location</p>
+                          <p className="text-xs font-bold truncate">{event.location}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3 text-slate-600">
+                        <div className="p-2.5 rounded-xl bg-slate-50 text-slate-400">
+                          <Users size={18} />
+                        </div>
+                        <div>
+                          <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Host</p>
+                          <p className="text-xs font-bold truncate">{event.organizer || "Alumni Office"}</p>
+                        </div>
+                      </div>
+                    </div>
+                    <button className="w-full py-4 bg-slate-950 text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] hover:bg-indigo-600 transition-all shadow-xl shadow-slate-200 flex items-center justify-center gap-2 group/btn">
+                      Secure Seat <ArrowRight size={16} className="group-hover/btn:translate-x-1 transition-transform" />
+                    </button>
+                  </div>
+                </motion.div>
+              ))
+            ) : (
+              <div className="col-span-2 text-center py-24 bg-white rounded-[2.5rem] border border-dashed border-slate-200 italic text-slate-400 font-medium">
+                Designing future experiences. Stay tuned.
               </div>
-              <div className="p-6">
-                <h3 className="text-2xl font-bold text-slate-800 mb-3">
-                  {event.title}
-                </h3>
-                <p className="text-slate-600 mb-4">{event.description}</p>
-                <div className="space-y-3 mb-6 text-sm">
-                  <div className="flex items-center text-slate-700">
-                    <span className="mr-3 text-lg">🗓️</span> {event.date}
-                  </div>
-                  <div className="flex items-center text-slate-700">
-                    <span className="mr-3 text-lg">🕒</span> {event.time}
-                  </div>
-                  <div className="flex items-center text-slate-700">
-                    <span className="mr-3 text-lg">📍</span> {event.location}
-                  </div>
-                  <div className="flex items-center text-slate-700">
-                    <span className="mr-3 text-lg">👥</span> {event.attendees}{" "}
-                    attendees
-                  </div>
-                </div>
-                <div className="flex justify-between items-center">
-                  <div className="text-2xl font-bold text-blue-600">
-                    {event.price}
-                  </div>
-                  <button
-                    onClick={(e) => e.preventDefault()}
-                    className="flex items-center justify-center bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg py-3 px-6 font-semibold hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105"
-                  >
-                    <span className="mr-2">Register Now</span>
-                    <span className="text-lg">🔗</span>
-                  </button>
-                </div>
-              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Regular Events Section */}
+        <section className="mb-24">
+          <div className="flex justify-between items-end mb-10">
+            <div>
+              <h2 className="text-[10px] font-black uppercase tracking-[0.3em] text-indigo-600 mb-2">Timeline</h2>
+              <h3 className="text-4xl font-black text-slate-900 font-outfit tracking-tight uppercase">Upcoming Gatherings</h3>
             </div>
-          ))}
-        </div>
+            <Link to="/events" className="text-indigo-600 font-black text-xs uppercase tracking-widest flex items-center gap-2 hover:translate-x-1 transition-transform">
+              Sync Calendar <ChevronRight size={16} />
+            </Link>
+          </div>
 
-        {/* Upcoming Events Section */}
-        <h2 className="text-3xl font-bold text-slate-800 mb-8">
-          Upcoming Events
-        </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
-          {upcomingEvents.map((event, idx) => (
-            <div
-              key={idx}
-              className="bg-white rounded-2xl shadow-lg overflow-hidden transform hover:scale-105 transition-transform duration-300"
-            >
-              <div className="bg-gradient-to-r from-indigo-500 to-purple-500 text-white p-6 relative">
-                <div className="absolute top-4 right-4 bg-white/90 text-indigo-600 rounded-full text-xs font-semibold px-3 py-1">
-                  {event.tag}
-                </div>
-                <div className="text-center mt-6">
-                  <span className="text-5xl">🗓️</span>
-                </div>
-              </div>
-              <div className="p-6">
-                <h3 className="text-xl font-bold text-slate-800 mb-3">
-                  {event.title}
-                </h3>
-                <div className="space-y-3 mb-4 text-sm">
-                  <div className="flex items-center text-slate-700">
-                    <span className="mr-3 text-lg">📅</span> {event.date}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {upcomingEvents.map((event, i) => (
+              <motion.div 
+                key={i}
+                initial={{ opacity: 0, scale: 0.95 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+                className="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-lg hover:shadow-2xl transition-all duration-300 group"
+              >
+                <div className="flex justify-between items-start mb-8">
+                  <div className="w-14 h-14 rounded-2xl bg-indigo-50 border border-indigo-100 flex flex-col items-center justify-center text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white transition-all duration-500 flex-shrink-0">
+                    <span className="text-[10px] font-black uppercase tracking-widest leading-none mb-1">
+                      {new Date(event.date).toLocaleString('default', { month: 'short' })}
+                    </span>
+                    <span className="text-2xl font-black leading-none">
+                      {new Date(event.date).getDate()}
+                    </span>
                   </div>
-                  <div className="flex items-center text-slate-700">
-                    <span className="mr-3 text-lg">📍</span> {event.location}
-                  </div>
-                  <div className="flex items-center text-slate-700">
-                    <span className="mr-3 text-lg">👥</span> {event.attendees}{" "}
-                    attendees
+                  <div className="px-3 py-1 rounded-full bg-slate-50 border border-slate-100 text-[9px] font-black uppercase tracking-[0.2em] text-slate-400">
+                    Registration Open
                   </div>
                 </div>
-                <div className="flex justify-between items-center mt-4">
-                  <div className="font-bold text-xl text-blue-600">
-                    {event.price}
+                <h4 className="text-xl font-black text-slate-900 font-outfit mb-4 group-hover:text-indigo-600 transition-colors uppercase tracking-tight line-clamp-1">{event.title}</h4>
+                <div className="space-y-3 mb-8">
+                  <div className="flex items-center gap-2 text-slate-400">
+                    <MapPin size={14} className="text-indigo-300" />
+                    <span className="text-xs font-bold truncate uppercase tracking-tight">{event.location}</span>
                   </div>
-                  <button
-                    onClick={(e) => e.preventDefault()}
-                    className="flex items-center justify-center bg-slate-100 text-slate-800 rounded-lg py-2 px-4 font-semibold hover:bg-slate-200 transition-all duration-300"
-                  >
-                    <span className="mr-2">View Details</span>
-                    <span className="text-lg">➡️</span>
-                  </button>
+                  <div className="flex items-center gap-2 text-slate-400">
+                    <Clock size={14} className="text-emerald-300" />
+                    <span className="text-xs font-bold uppercase tracking-tight">18:00 Local Time</span>
+                  </div>
                 </div>
-              </div>
-            </div>
-          ))}
-        </div>
+                <button className="w-full py-4 bg-slate-50 hover:bg-indigo-50 text-indigo-600 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-2">
+                  View Invitation <ArrowRight size={14} />
+                </button>
+              </motion.div>
+            ))}
+          </div>
+        </section>
 
-        {/* Organize Event Section */}
-        <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl shadow-lg p-8 my-12 text-center">
-          <h2 className="text-3xl font-bold text-white mb-4">
-            Want to Organize an Event?
-          </h2>
-          <p className="text-blue-100 text-lg mb-6 max-w-2xl mx-auto">
-            Planning a regional meetup, industry panel, or social gathering? We
-            provide support and resources to help you create successful alumni
-            events.
-          </p>
-          <div className="flex flex-wrap gap-4 justify-center">
-            <button
+        {/* Organize Section */}
+        <section className="relative p-12 md:p-24 bg-gradient-to-br from-indigo-600 to-violet-700 rounded-[3rem] text-center overflow-hidden shadow-2xl shadow-indigo-100">
+          <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-110 transition-transform">
+            <Plus size={200} className="text-white" />
+          </div>
+          <div className="relative z-10 max-w-3xl mx-auto">
+            <h2 className="text-4xl md:text-5xl font-black text-white mb-8 font-outfit uppercase tracking-tight">Host Your Own Event?</h2>
+            <p className="text-indigo-100/70 text-lg font-medium leading-relaxed mb-12 italic">
+              "Lead the conversation. Organize a regional chapter meetup, industry roundtable, or social mixer with our full resource support."
+            </p>
+            <button 
               onClick={() => setShowProposalForm(true)}
-              className="px-8 py-3 bg-white text-blue-600 rounded-lg font-semibold hover:bg-blue-50 transition-all duration-300 transform hover:scale-105"
+              className="px-12 py-5 bg-white text-indigo-600 rounded-[2rem] font-black text-sm uppercase tracking-widest hover:bg-slate-50 transition-all hover:translate-y-[-2px] shadow-2xl shadow-indigo-950/20"
             >
-              Submit Event Proposal
+              Submit Proposal
             </button>
           </div>
-        </div>
+        </section>
+      </div>
 
-        {/* Event Proposal Form Modal */}
+      {/* Modern Modal */}
+      <AnimatePresence>
         {showProposalForm && (
-          <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-xl p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-              <h2 className="text-2xl font-bold text-slate-800 mb-6">
-                Submit Event Proposal
-              </h2>
-              <form onSubmit={handleProposalSubmit} className="space-y-6">
-                <div>
-                  <label
-                    htmlFor="title"
-                    className="block text-sm font-medium text-slate-700 mb-1"
-                  >
-                    Event Title
-                  </label>
-                  <input
-                    id="title"
-                    type="text"
-                    name="title"
-                    value={proposalForm.title}
-                    onChange={handleInputChange}
-                    required
-                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  />
-                </div>
-
-                <div>
-                  <label
-                    htmlFor="description"
-                    className="block text-sm font-medium text-slate-700 mb-1"
-                  >
-                    Description
-                  </label>
-                  <textarea
-                    id="description"
-                    name="description"
-                    value={proposalForm.description}
-                    onChange={handleInputChange}
-                    required
-                    rows={4}
-                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowProposalForm(false)}
+              className="absolute inset-0 bg-slate-900/60 backdrop-blur-md"
+            />
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="relative w-full max-w-2xl bg-white rounded-[2.5rem] shadow-2xl overflow-hidden"
+            >
+              <div className="p-10">
+                <div className="flex justify-between items-center mb-10">
                   <div>
-                    <label
-                      htmlFor="date"
-                      className="block text-sm font-medium text-slate-700 mb-1"
-                    >
-                      Date
-                    </label>
-                    <input
-                      id="date"
-                      type="date"
-                      name="date"
-                      value={proposalForm.date}
-                      onChange={handleInputChange}
-                      required
-                      className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    />
+                    <h3 className="text-3xl font-black text-slate-900 font-outfit uppercase tracking-tight leading-none">Event Proposal</h3>
+                    <p className="text-slate-400 text-xs font-black uppercase tracking-widest mt-2">Connect your community</p>
                   </div>
-                  <div>
-                    <label
-                      htmlFor="time"
-                      className="block text-sm font-medium text-slate-700 mb-1"
-                    >
-                      Time
-                    </label>
-                    <input
-                      id="time"
-                      type="time"
-                      name="time"
-                      value={proposalForm.time}
-                      onChange={handleInputChange}
-                      required
-                      className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label
-                    htmlFor="location"
-                    className="block text-sm font-medium text-slate-700 mb-1"
-                  >
-                    Location
-                  </label>
-                  <input
-                    id="location"
-                    type="text"
-                    name="location"
-                    value={proposalForm.location}
-                    onChange={handleInputChange}
-                    required
-                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label
-                      htmlFor="category"
-                      className="block text-sm font-medium text-slate-700 mb-1"
-                    >
-                      Category
-                    </label>
-                    <select
-                      id="category"
-                      name="category"
-                      value={proposalForm.category}
-                      onChange={handleInputChange}
-                      required
-                      className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    >
-                      {categories.map((category) => (
-                        <option key={category} value={category}>
-                          {category}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  <div>
-                    <label
-                      htmlFor="expectedAttendees"
-                      className="block text-sm font-medium text-slate-700 mb-1"
-                    >
-                      Expected Attendees
-                    </label>
-                    <input
-                      id="expectedAttendees"
-                      type="number"
-                      name="expectedAttendees"
-                      value={proposalForm.expectedAttendees}
-                      onChange={handleInputChange}
-                      required
-                      min="1"
-                      className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    />
-                  </div>
-                </div>
-
-                <div className="flex gap-4 justify-end pt-4">
-                  <button
-                    type="button"
-                    onClick={() => setShowProposalForm(false)}
-                    className="px-6 py-2 border rounded-lg text-slate-600 hover:bg-slate-50 transition"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
-                  >
-                    Submit Proposal
+                  <button onClick={() => setShowProposalForm(false)} className="p-3 rounded-2xl bg-slate-50 text-slate-400 hover:bg-rose-50 hover:text-rose-500 transition-all">
+                    <X size={20} />
                   </button>
                 </div>
-              </form>
-            </div>
+
+                <form onSubmit={handleProposalSubmit} className="space-y-6">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-4">Event Title</label>
+                    <input 
+                      name="title" 
+                      value={proposalForm.title} 
+                      onChange={handleInputChange} 
+                      required 
+                      className="w-full px-8 py-5 rounded-2xl bg-slate-50 border-none focus:ring-2 focus:ring-indigo-600 font-bold placeholder:text-slate-300 transition-all" 
+                      placeholder="e.g. AI Ethics Symposium"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-4">Vision & Description</label>
+                    <textarea 
+                      name="description" 
+                      value={proposalForm.description} 
+                      onChange={handleInputChange} 
+                      required 
+                      rows={3} 
+                      className="w-full px-8 py-5 rounded-2xl bg-slate-50 border-none focus:ring-2 focus:ring-indigo-600 font-bold placeholder:text-slate-300 transition-all resize-none" 
+                      placeholder="What is the objective of this event?"
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-4">Date</label>
+                      <input name="date" type="date" value={proposalForm.date} onChange={handleInputChange} required className="w-full px-6 py-4 rounded-2xl bg-slate-50 border-none focus:ring-2 focus:ring-indigo-600 font-bold text-sm" />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-4">Category</label>
+                      <select name="category" value={proposalForm.category} onChange={handleInputChange} className="w-full px-6 py-4 rounded-2xl bg-slate-50 border-none focus:ring-2 focus:ring-indigo-600 font-bold text-sm appearance-none">
+                        {categories.map(c => <option key={c} value={c}>{c}</option>)}
+                      </select>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-4">Location / Virtual Link</label>
+                    <input name="location" value={proposalForm.location} onChange={handleInputChange} required className="w-full px-8 py-5 rounded-2xl bg-slate-50 border-none focus:ring-2 focus:ring-indigo-600 font-bold text-sm" placeholder="Global HQ / Zoom Link" />
+                  </div>
+                  <button type="submit" className="w-full py-5 bg-indigo-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-indigo-100 hover:bg-indigo-700 transition-all mt-4">
+                    Send Proposal to Admin
+                  </button>
+                </form>
+              </div>
+            </motion.div>
           </div>
         )}
-      </div>
+      </AnimatePresence>
     </div>
   );
 };

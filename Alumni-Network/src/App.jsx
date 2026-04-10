@@ -7,103 +7,93 @@ import LandingPage from "./pages/LandingPage";
 import AdminDashboard from "./pages/AdminDashboard";
 import StudentDashboard from "./pages/StudentDashboard";
 import RegisterInstitute from "./pages/RegisterInstitute";
+import Posts from "./pages/Posts";
+import Jobs from "./pages/Jobs";
+import Events from "./pages/Events";
+
+
+
+import AlumniDirectory from "./pages/AlumniDirectory";
+
+import ProtectedRoute from "./components/ProtectedRoute";
+
 
 const App = () => {
   return (
     <Router>
       <Routes>
-        {/* Default route */}
+        {/* Public Routes */}
         <Route
           path="/"
-          element={
-            <>
-              {/* <Navbar />  */}
-              <LandingPage />
-            </>
-          }
-        />
-        <Route
-          path="/admin-dashboard"
-          element={
-            <>
-              <AdminDashboard />
-            </>
-          }
-        />
-        <Route
-          path="/student-dashboard"
-          element={
-            <>
-              <Navbar />
-              <StudentDashboard />
-            </>
-          }
+          element={<LandingPage />}
         />
         <Route
           path="/login"
-          element={
-            <>
-              <LoginPage />
-            </>
-          }
+          element={<LoginPage />}
         />
         <Route
           path="/register-institute"
+          element={<RegisterInstitute />}
+        />
+
+        {/* Admin Protected Routes */}
+        <Route
+          path="/admin-dashboard"
           element={
-            <>
-              <RegisterInstitute/>
-            </>
+            <ProtectedRoute allowedRole="admin">
+              <AdminDashboard />
+            </ProtectedRoute>
           }
         />
-        {/*<Route*/}
-        {/*  path="/alumni-directory"*/}
-        {/*  element={*/}
-        {/*    <>*/}
-        {/*      <Navbar />*/}
-        {/*      <AlumniDirectory />*/}
-        {/*    </>*/}
-        {/*  }*/}
-        {/*/>*/}
-        
 
-        {/* New pages */}
-        {/* 
+        {/* Student/Alumni Protected Routes */}
+        <Route
+          path="/student-dashboard"
+          element={
+            <ProtectedRoute allowedRole="student">
+              <Navbar />
+              <StudentDashboard />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Shared Protected Routes (Accessible by both roles) */}
+        <Route
+          path="/alumni-directory"
+          element={
+            <ProtectedRoute>
+              <Navbar />
+              <AlumniDirectory />
+            </ProtectedRoute>
+          }
+        />
         <Route
           path="/jobs"
           element={
-            <>
+            <ProtectedRoute>
               <Navbar />
               <Jobs />
-            </>
+            </ProtectedRoute>
           }
         />
         <Route
           path="/posts"
           element={
-            <>
+            <ProtectedRoute>
               <Navbar />
               <Posts />
-            </>
-          }
-        />
-        <Route
-          path="/donate"
-          element={
-            <>
-              <Navbar />
-              <Donate />
-            </>
+            </ProtectedRoute>
           }
         />
         <Route
           path="/events"
           element={
-            <>
+            <ProtectedRoute>
               <Navbar />
               <Events />
-            </>
+            </ProtectedRoute>
           }
-        /> */}
+        />
 
         {/* Catch-all for 404 */}
         <Route

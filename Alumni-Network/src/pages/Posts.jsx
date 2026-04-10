@@ -1,279 +1,59 @@
-import React, { useState } from "react";
+import React, { useState, useContext, useEffect } from "react";
+import { AppContext } from "../context/AppContext";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  MessageSquare,
+  Heart,
+  Share2,
+  MoreHorizontal,
+  Plus,
+  Search,
+  TrendingUp,
+  Award,
+  Users,
+  Image as ImageIcon,
+  FileText,
+  Calendar,
+  X,
+  Send,
+  Sparkles,
+  MapPin,
+  Clock
+} from "lucide-react";
 
-// =================================================================================================
-// --- DUMMY DATA ---
-// =================================================================================================
-
-const initialUser = {
-  name: "Alex Johnson",
-  title: "Computer Science Student",
-  avatar: "https://placehold.co/100x100/3B82F6/FFFFFF?text=AJ",
-  connections: 152,
-  profileViews: 88,
-};
-
-const initialPosts = [
-  {
-    id: 1,
-    author: {
-      name: "Dr. Sarah Chen",
-      title: "CTO @ Innovate Solutions",
-      avatar: "https://placehold.co/100x100/3B82F6/FFFFFF?text=SC",
-    },
-    timestamp: "8h ago",
-    content:
-      "Just wrapped up a guide on navigating technical interviews for senior roles, focusing on system design. It covers common pitfalls and a framework for structuring your answers. Hope this helps some of you preparing for that next big step! #interviewprep #systemdesign",
-    document: { name: "Senior_Tech_Interview_Guide.pdf", size: "1.2MB" },
-    likes: 125,
-    comments: 42,
-  },
-  {
-    id: 2,
-    author: {
-      name: "Emily Watson",
-      title: "UX Design Lead @ Creative Minds",
-      avatar: "https://placehold.co/100x100/14B8A6/FFFFFF?text=EW",
-    },
-    timestamp: "1d ago",
-    content:
-      "Thrilled to share my interview experience with a major tech firm for a UX Lead position! The process was intense but incredibly rewarding. Key takeaway: your portfolio is your story, make sure every project narrative is compelling and clear. Happy to answer questions in the comments!",
-    image:
-      "https://images.unsplash.com/photo-1557426272-fc759fdf7a8d?q=80&w=2070&auto=format&fit=crop",
-    likes: 230,
-    comments: 78,
-  },
-  {
-    id: 3,
-    author: {
-      name: "Marcus Williams",
-      title: "Founder & CEO @ EcoInnovate",
-      avatar: "https://placehold.co/100x100/10B981/FFFFFF?text=MW",
-    },
-    timestamp: "2d ago",
-    content:
-      "We're hosting a virtual alumni meetup next month to discuss 'Sustainability in Tech'. It's a great chance to network and explore how we can innovate for a greener future. Link to register is in my bio! #sustainability #alumnimeetup #greentech",
-    likes: 150,
-    comments: 33,
-  },
-  {
-    id: 4,
-    author: {
-      name: "James Rodriguez",
-      title: "Investment Director @ VCP",
-      avatar: "https://placehold.co/100x100/1E3A8A/FFFFFF?text=JR",
-    },
-    timestamp: "2d ago",
-    content:
-      "For all the finance students out there, I've compiled a list of essential valuation techniques that are frequently tested in investment banking interviews. Don't just memorize them, understand the 'why' behind each method. #finance #investmentbanking #careers",
-    likes: 98,
-    comments: 21,
-  },
-  {
-    id: 5,
-    author: {
-      name: "David Lee",
-      title: "Senior Software Engineer @ DataStream",
-      avatar: "https://placehold.co/100x100/475569/FFFFFF?text=DL",
-    },
-    timestamp: "3d ago",
-    content:
-      "Excited to share that I've accepted a new role as a Staff Engineer! Huge thanks to this community for the resources and interview prep tips. The guide on system design shared by Dr. Chen was particularly helpful. Keep pushing forward, everyone! #newjob #careergoals",
-    likes: 312,
-    comments: 65,
-  },
-  {
-    id: 6,
-    author: {
-      name: "Alex Johnson",
-      title: "Computer Science Student",
-      avatar: "https://placehold.co/100x100/3B82F6/FFFFFF?text=AJ",
-    },
-    timestamp: "4d ago",
-    content:
-      "Question for the experienced software engineers here: What's one non-technical skill you believe has been most crucial to your career growth? Trying to look beyond the code. #softskills #careeradvice",
-    likes: 75,
-    comments: 55,
-  },
-  {
-    id: 7,
-    author: {
-      name: "Dr. Priya Patel",
-      title: "Senior Research Director @ BioPharma",
-      avatar: "https://placehold.co/100x100/0EA5E9/FFFFFF?text=PP",
-    },
-    timestamp: "5d ago",
-    content:
-      "Our team just published a new paper on advancements in CRISPR technology. It's a culmination of two years of hard work. Sharing the abstract here for anyone interested in the biotech space. #biotechnology #research #crispr",
-    document: { name: "CRISPR_Advancements_Abstract.pdf", size: "450KB" },
-    likes: 180,
-    comments: 29,
-  },
-  {
-    id: 8,
-    author: {
-      name: "Michael Brown",
-      title: "Data Scientist @ QuantumLeap",
-      avatar: "https://placehold.co/100x100/F59E0B/FFFFFF?text=MB",
-    },
-    timestamp: "6d ago",
-    content:
-      "What's everyone's favorite Python library for data visualization? I'm a big fan of Plotly for its interactivity, but Matplotlib is the old reliable. Curious to hear other perspectives! #datascience #python #dataviz",
-    likes: 95,
-    comments: 48,
-  },
-];
-
-// =================================================================================================
-// --- SVG ICONS ---
-// =================================================================================================
-
-const LikeIcon = ({ filled }) => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    className={`h-6 w-6 mr-2 transition-colors ${filled ? "text-blue-600" : "text-gray-500 hover:text-blue-600"}`}
-    viewBox="0 0 20 20"
-    fill="currentColor"
-  >
-    <path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.562 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 7.933a4 4 0 00-.8 2.4z" />
-  </svg>
-);
-const CommentIcon = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    className="h-6 w-6 mr-2 text-gray-500 hover:text-blue-600"
-    viewBox="0 0 20 20"
-    fill="currentColor"
-  >
-    <path
-      fillRule="evenodd"
-      d="M18 5v8a2 2 0 01-2 2h-5l-5 4v-4H4a2 2 0 01-2-2V5a2 2 0 012-2h12a2 2 0 012 2zM7 8H5v2h2V8zm2 0h2v2H9V8zm6 0h-2v2h2V8z"
-      clipRule="evenodd"
-    />
-  </svg>
-);
-const ShareIcon = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    className="h-6 w-6 mr-2 text-gray-500 hover:text-blue-600"
-    viewBox="0 0 20 20"
-    fill="currentColor"
-  >
-    <path d="M15 8a3 3 0 10-2.977-2.63l-4.94 2.47a3 3 0 100 4.319l4.94 2.47a3 3 0 10.895-1.789l-4.94-2.47a3.027 3.027 0 000-.74l4.94-2.47C13.456 7.68 14.19 8 15 8z" />
-  </svg>
-);
-const DocumentIcon = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    className="h-5 w-5 mr-2 text-blue-600"
-    viewBox="0 0 20 20"
-    fill="currentColor"
-  >
-    <path
-      fillRule="evenodd"
-      d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z"
-      clipRule="evenodd"
-    />
-  </svg>
-);
-
-// =================================================================================================
-// --- REUSABLE UI COMPONENTS ---
-// =================================================================================================
-
+// Premium Profile Card
 const ProfileCard = ({ user }) => (
-  <div className="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
-    <div className="h-20 bg-blue-500"></div>
-    <div className="p-4 pt-0 text-center">
-      <img
-        src={user.avatar}
-        alt={user.name}
-        className="w-20 h-20 rounded-full mx-auto -mt-10 border-4 border-white"
-      />
-      <h3 className="text-lg font-bold mt-2">{user.name}</h3>
-      <p className="text-sm text-gray-500">{user.title}</p>
-    </div>
-    <div className="border-t border-gray-100 p-4 text-sm">
-      <div className="flex justify-between items-center py-2">
-        <span className="text-gray-600">Connections</span>
-        <span className="font-bold text-blue-600">{user.connections}</span>
-      </div>
-      <div className="flex justify-between items-center py-2">
-        <span className="text-gray-600">Profile Views</span>
-        <span className="font-bold text-blue-600">{user.profileViews}</span>
+  <div className="bg-white rounded-[2rem] shadow-xl border border-slate-100 overflow-hidden group">
+    <div className="h-28 bg-gradient-to-br from-indigo-500 to-indigo-700 relative overflow-hidden">
+      <div className="absolute inset-0 opacity-20 group-hover:scale-110 transition-transform duration-700">
+        <div className="absolute -top-10 -right-10 w-40 h-40 bg-white rounded-full blur-3xl" />
       </div>
     </div>
-    <div className="border-t border-gray-100 p-4">
-      <button className="w-full text-left text-sm font-semibold text-gray-700 hover:text-blue-600">
-        My Posts
-      </button>
-      <button className="w-full text-left text-sm font-semibold text-gray-700 hover:text-blue-600 mt-2">
-        Saved Items
-      </button>
+    <div className="p-8 pt-0 text-center relative">
+      <div className="w-24 h-24 rounded-[2rem] bg-indigo-50 border-4 border-white mx-auto -mt-12 flex items-center justify-center text-indigo-600 shadow-xl overflow-hidden group-hover:scale-105 transition-transform duration-500">
+        {user?.avatar ? <img src={user.avatar} className="w-full h-full object-cover" /> : <Users size={32} />}
+      </div>
+      <h3 className="text-xl font-black mt-4 text-slate-900 font-outfit uppercase tracking-tight">{user?.full_name || "Community Member"}</h3>
+      <p className="text-[10px] font-black text-indigo-400 uppercase tracking-widest mt-1 mb-6">{user?.role || "Scholar"}</p>
+      
+      <div className="grid grid-cols-2 gap-4 border-t border-slate-50 pt-6">
+        <div>
+          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Network</p>
+          <p className="text-lg font-black text-slate-900 font-outfit">1.2k</p>
+        </div>
+        <div>
+          <p className="text-[10px) font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Rank</p>
+          <p className="text-lg font-black text-slate-900 font-outfit">Top 5%</p>
+        </div>
+      </div>
     </div>
   </div>
 );
 
-const NetworkSuggestionsCard = () => (
-  <div className="bg-white rounded-xl shadow-md border border-gray-100 p-4 mt-6">
-    <h3 className="font-bold text-lg mb-3">People You May Know</h3>
-    <ul className="space-y-4">
-      {[
-        {
-          name: "David Lee",
-          title: "Senior Software Engineer",
-          avatar: "https://placehold.co/100x100/475569/FFFFFF?text=DL",
-        },
-        {
-          name: "Emily Watson",
-          title: "UX Design Lead",
-          avatar: "https://placehold.co/100x100/14B8A6/FFFFFF?text=EW",
-        },
-        {
-          name: "Marcus Williams",
-          title: "Founder & CEO",
-          avatar: "https://placehold.co/100x100/10B981/FFFFFF?text=MW",
-        },
-      ].map((person) => (
-        <li key={person.name} className="flex items-center">
-          <img
-            src={person.avatar}
-            alt={person.name}
-            className="w-10 h-10 rounded-full mr-3"
-          />
-          <div className="flex-grow">
-            <p className="font-bold text-sm">{person.name}</p>
-            <p className="text-xs text-gray-500">{person.title}</p>
-          </div>
-          <button className="text-blue-600 border border-blue-600 rounded-full px-3 py-1 text-sm font-semibold hover:bg-blue-50">
-            +
-          </button>
-        </li>
-      ))}
-    </ul>
-  </div>
-);
-
-const UpcomingEventsCard = () => (
-  <div className="bg-white rounded-xl shadow-md border border-gray-100 p-4 mt-6">
-    <h3 className="font-bold text-lg mb-3">Upcoming Events</h3>
-    <ul className="space-y-3">
-      {[
-        { title: "Alumni Networking Night", date: "Oct 15, 2025" },
-        { title: "Tech Talk: AI in 2026", date: "Nov 02, 2025" },
-        { title: "Annual Alumni Gala", date: "Dec 10, 2025" },
-      ].map((event) => (
-        <li key={event.title}>
-          <p className="font-semibold text-sm text-gray-800">{event.title}</p>
-          <p className="text-xs text-gray-500">{event.date}</p>
-        </li>
-      ))}
-    </ul>
-  </div>
-);
-
+// Post Card Component
 const PostCard = ({ post }) => {
   const [liked, setLiked] = useState(false);
-  const [likeCount, setLikeCount] = useState(post.likes);
+  const [likeCount, setLikeCount] = useState(post.likes || Math.floor(Math.random() * 50));
 
   const handleLike = () => {
     setLiked(!liked);
@@ -281,209 +61,246 @@ const PostCard = ({ post }) => {
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-md border border-gray-100 p-6 mb-6">
-      <div className="flex items-start mb-4">
-        <img
-          src={post.author.avatar}
-          alt={post.author.name}
-          className="w-12 h-12 rounded-full mr-4"
-        />
-        <div>
-          <p className="font-bold text-gray-900">{post.author.name}</p>
-          <p className="text-xs text-gray-500">
-            {post.author.title} &bull; {post.timestamp}
-          </p>
-        </div>
-      </div>
-      <p className="text-gray-800 whitespace-pre-wrap">{post.content}</p>
-      {post.image && (
-        <img
-          src={post.image}
-          alt="Post content"
-          className="mt-4 rounded-lg w-full"
-        />
-      )}
-      {post.document && (
-        <a
-          href="#"
-          className="mt-4 flex items-center p-3 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100"
-        >
-          <DocumentIcon />
-          <div>
-            <p className="font-semibold text-sm text-blue-800">
-              {post.document.name}
-            </p>
-            <p className="text-xs text-blue-600">{post.document.size}</p>
+    <motion.div 
+      initial={{ opacity: 0, y: 30 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      className="bg-white rounded-[2.5rem] shadow-lg border border-slate-100 p-8 mb-8 group hover:shadow-2xl transition-all duration-500"
+    >
+      <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center gap-5">
+          <div className="w-14 h-14 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 font-black text-xs uppercase group-hover:bg-indigo-50 group-hover:text-indigo-600 transition-all duration-500">
+            {post.author?.name?.charAt(0) || "A"}
           </div>
-        </a>
+          <div>
+            <h4 className="text-lg font-black text-slate-900 font-outfit tracking-tight leading-none uppercase">{post.author?.name || "Anonymous Member"}</h4>
+            <div className="flex items-center gap-2 mt-1.5 font-bold text-slate-400 text-[10px] tracking-widest uppercase">
+              <span>Alumnus</span>
+              <span className="w-1 h-1 rounded-full bg-slate-200" />
+              <span>{new Date(post.createdAt || Date.now()).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
+            </div>
+          </div>
+        </div>
+        <button className="p-3 rounded-2xl bg-slate-50 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 transition-all">
+          <MoreHorizontal size={20} />
+        </button>
+      </div>
+
+      <p className="text-slate-600 text-lg leading-relaxed mb-8 font-medium italic">
+        "{post.content}"
+      </p>
+
+      {post.image && (
+        <div className="mb-8 rounded-[2rem] overflow-hidden border border-slate-100 shadow-md">
+          <img src={post.image} className="w-full h-auto" />
+        </div>
       )}
-      <div className="flex justify-between items-center text-sm text-gray-500 mt-4 border-b border-gray-100 pb-2">
-        <span>{likeCount.toLocaleString()} Likes</span>
-        <span>{post.comments} Comments</span>
+
+      <div className="flex items-center justify-between pt-6 border-t border-slate-50">
+        <div className="flex items-center gap-2">
+          <button 
+            onClick={handleLike}
+            className={`flex items-center gap-2.5 px-6 py-3 rounded-2xl transition-all font-black text-[10px] uppercase tracking-widest ${liked ? 'bg-rose-50 text-rose-600' : 'bg-slate-50 text-slate-400 hover:bg-slate-100'}`}
+          >
+            <Heart size={16} fill={liked ? "currentColor" : "none"} />
+            {likeCount}
+          </button>
+          <button className="flex items-center gap-2.5 px-6 py-3 rounded-2xl bg-slate-50 text-slate-400 hover:bg-slate-100 hover:text-indigo-600 transition-all font-black text-[10px] uppercase tracking-widest">
+            <MessageSquare size={16} />
+            {post.comments || 0}
+          </button>
+        </div>
+        <button className="p-3 rounded-2xl bg-slate-50 text-slate-400 hover:bg-indigo-50 hover:text-indigo-600 transition-all">
+          <Share2 size={18} />
+        </button>
       </div>
-      <div className="flex justify-around items-center pt-2">
-        <button
-          onClick={handleLike}
-          className="flex items-center font-semibold text-gray-600 hover:text-blue-600 p-2 rounded-lg w-full justify-center transition-colors"
-        >
-          <LikeIcon filled={liked} /> Like
-        </button>
-        <button className="flex items-center font-semibold text-gray-600 hover:text-blue-600 p-2 rounded-lg w-full justify-center transition-colors">
-          <CommentIcon /> Comment
-        </button>
-        <button className="flex items-center font-semibold text-gray-600 hover:text-blue-600 p-2 rounded-lg w-full justify-center transition-colors">
-          <ShareIcon /> Share
-        </button>
-      </div>
-    </div>
+    </motion.div>
   );
 };
 
-const CreatePost = ({ onPostClick }) => (
-  <div className="bg-white rounded-xl shadow-md border border-gray-100 p-4 flex items-center gap-4 mb-6">
-    <img
-      src={initialUser.avatar}
-      alt="Your avatar"
-      className="w-12 h-12 rounded-full"
-    />
-    <button
-      onClick={onPostClick}
-      className="flex-grow text-left bg-gray-100 hover:bg-gray-200 text-gray-600 font-semibold py-3 px-4 rounded-full transition-colors"
-    >
-      Start a post...
-    </button>
-  </div>
-);
-
-const PostModal = ({ user, setShowModal, setPosts }) => {
+// Main Feed Management
+export default function Posts() {
+  const { posts, user, fetchFeed } = useContext(AppContext);
+  const [showModal, setShowModal] = useState(false);
   const [postContent, setPostContent] = useState("");
 
-  const handleSubmit = () => {
-    if (postContent.trim() === "") return;
-    const newPost = {
-      id: Date.now(),
-      author: { name: user.name, title: user.title, avatar: user.avatar },
-      timestamp: "Just now",
-      content: postContent,
-      likes: 0,
-      comments: 0,
-    };
-    setPosts((prev) => [newPost, ...prev]);
+  useEffect(() => {
+    fetchFeed();
+  }, []);
+
+  const handleCreatePost = (e) => {
+    e.preventDefault();
+    if (!postContent.trim()) return;
+    // Mock successful post creation
+    setPostContent("");
     setShowModal(false);
+    fetchFeed();
   };
 
   return (
-    <div
-      className="fixed inset-0 bg-black bg-opacity-60 flex justify-center items-start z-50 p-4 pt-20"
-      onClick={() => setShowModal(false)}
-    >
-      <div
-        className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl transform transition-all"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="p-6 border-b border-gray-200 flex justify-between items-center">
-          <h2 className="text-xl font-bold">Create a post</h2>
-          <button
-            onClick={() => setShowModal(false)}
-            className="text-gray-400 hover:text-gray-600 text-3xl"
-          >
-            &times;
-          </button>
-        </div>
-        <div className="p-6">
-          <textarea
-            className="w-full h-40 border-none focus:ring-0 text-lg p-2"
-            placeholder="What do you want to talk about?"
-            value={postContent}
-            onChange={(e) => setPostContent(e.target.value)}
-          ></textarea>
-        </div>
-        <div className="bg-gray-50 px-6 py-4 rounded-b-2xl flex justify-end">
-          <button
-            onClick={handleSubmit}
-            disabled={!postContent.trim()}
-            className="bg-blue-600 text-white font-bold py-2 px-6 rounded-full disabled:bg-gray-300 disabled:cursor-not-allowed hover:bg-blue-700"
-          >
-            Post
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-// =================================================================================================
-// --- MAIN APP COMPONENT ---
-// =================================================================================================
-export default function Posts() {
-  const [posts, setPosts] = useState(initialPosts);
-  const [showModal, setShowModal] = useState(false);
-
-  return (
-    <div className="bg-blue-50 pt-10 min-h-screen font-sans">
-      <div className="container mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          {/* Left Column */}
-          <aside className="lg:col-span-1 hidden lg:block">
-            <div className="sticky top-8">
-              <ProfileCard user={initialUser} />
-              <NetworkSuggestionsCard />
+    <div className="min-h-screen bg-[#f8fafc] pt-28 pb-24 font-inter">
+      <div className="container mx-auto px-6">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-12">
+          {/* Static Sidebar */}
+          <aside className="lg:col-span-1 hidden lg:block space-y-8">
+            <div className="sticky top-28">
+              <ProfileCard user={user} />
+              
+              <div className="mt-8 p-8 bg-white rounded-[2rem] shadow-xl border border-slate-100">
+                <div className="flex items-center gap-3 mb-8">
+                  <div className="p-2.5 bg-indigo-50 text-indigo-600 rounded-xl">
+                    <TrendingUp size={20} />
+                  </div>
+                  <h4 className="text-lg font-black text-slate-900 font-outfit uppercase tracking-tight">Trending</h4>
+                </div>
+                <div className="space-y-5">
+                  {[
+                    { tag: "#CareerMilestones", growth: "+12%" },
+                    { tag: "#ResumeAudit", growth: "+8%" },
+                    { tag: "#GlobalMeetup", growth: "+21%" },
+                  ].map((topic, i) => (
+                    <div key={i} className="flex justify-between items-center group cursor-pointer">
+                      <span className="text-xs font-bold text-slate-400 group-hover:text-indigo-600 transition-colors uppercase tracking-tight">{topic.tag}</span>
+                      <span className="text-[10px] font-black text-emerald-500 bg-emerald-50 px-2 py-0.5 rounded-lg">{topic.growth}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
           </aside>
 
-          {/* Center Column (Main Feed) */}
-          <main className="lg:col-span-2">
-            <CreatePost onPostClick={() => setShowModal(true)} />
-            {posts.map((post) => (
-              <PostCard key={post.id} post={post} />
-            ))}
+          {/* Main Social Feed */}
+          <main className="lg:col-span-2 space-y-10">
+            {/* Create Post Action */}
+            <div 
+              onClick={() => setShowModal(true)}
+              className="bg-white p-6 rounded-[2.5rem] shadow-xl border border-slate-100 flex items-center gap-6 group cursor-pointer hover:border-indigo-100 transition-all"
+            >
+              <div className="w-12 h-12 rounded-2xl bg-indigo-50 flex items-center justify-center text-indigo-600 transition-transform group-hover:scale-105">
+                <Plus size={24} />
+              </div>
+              <span className="text-slate-400 font-bold text-lg uppercase tracking-tight flex-grow">Start a conversation...</span>
+              <div className="flex gap-2">
+                <div className="p-3 rounded-xl hover:bg-slate-50 text-indigo-400"><ImageIcon size={20} /></div>
+                <div className="p-3 rounded-xl hover:bg-slate-50 text-indigo-400"><Calendar size={20} /></div>
+              </div>
+            </div>
+
+            {/* Content Feed */}
+            {posts.length > 0 ? (
+              posts.map((post) => (
+                <PostCard key={post._id || post.id} post={post} />
+              ))
+            ) : (
+              <div className="bg-white rounded-[2rem] p-24 text-center border-2 border-dashed border-slate-100">
+                <Sparkles size={64} className="text-slate-100 mx-auto mb-8" />
+                <p className="text-slate-400 text-lg italic font-medium">The community feed is waiting for your story.</p>
+              </div>
+            )}
           </main>
 
-          {/* Right Column */}
-          <aside className="lg:col-span-1 hidden lg:block">
-            <div className="sticky top-8">
-              <div className="bg-white rounded-xl shadow-md border border-gray-100 p-4">
-                <h3 className="font-bold text-lg">Trending Topics</h3>
-                <ul className="mt-2 text-sm space-y-2 text-blue-700 font-semibold">
-                  <li>
-                    <a href="#" className="hover:underline">
-                      #InterviewExperiences
-                    </a>
-                  </li>
-                  <li>
-                    <a href="#" className="hover:underline">
-                      #ResumeTips
-                    </a>
-                  </li>
-                  <li>
-                    <a href="#" className="hover:underline">
-                      #CareerAdvice
-                    </a>
-                  </li>
-                  <li>
-                    <a href="#" className="hover:underline">
-                      #AlumniNetwork
-                    </a>
-                  </li>
-                  <li>
-                    <a href="#" className="hover:underline">
-                      #CampusNews
-                    </a>
-                  </li>
-                </ul>
+          {/* Activity Sidebar */}
+          <aside className="lg:col-span-1 hidden lg:block space-y-8">
+            <div className="sticky top-28">
+              <div className="p-8 bg-gradient-to-br from-slate-900 to-indigo-950 rounded-[2.5rem] text-white shadow-2xl relative overflow-hidden group">
+                <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-110 transition-transform">
+                  <Award size={120} />
+                </div>
+                <div className="relative z-10">
+                  <h4 className="text-2xl font-black mb-4 font-outfit uppercase tracking-tight leading-none">Ambassador Spotlight</h4>
+                  <p className="text-indigo-200/60 text-xs font-medium leading-relaxed mb-8 mb-8 italic">"Mentoring graduates was the most rewarding phase of my career."</p>
+                  <button className="w-full py-4 bg-white text-slate-950 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-50 transition-all">
+                    Nominate Member
+                  </button>
+                </div>
               </div>
-              <UpcomingEventsCard />
+
+              <div className="mt-8 p-8 bg-white rounded-[2rem] shadow-xl border border-slate-100">
+                <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mb-8">Network Reach</h4>
+                <div className="space-y-6">
+                  {[
+                    { label: "India", count: 840, color: "bg-indigo-500" },
+                    { label: "USA", count: 210, color: "bg-blue-500" },
+                  ].map((stat, i) => (
+                    <div key={i}>
+                      <div className="flex justify-between text-[9px] font-black uppercase tracking-widest mb-2 text-slate-500">
+                        <span>{stat.label}</span>
+                        <span>{stat.count} Members</span>
+                      </div>
+                      <div className="h-2 bg-slate-50 rounded-full overflow-hidden">
+                        <div className={`h-full ${stat.color} rounded-full`} style={{ width: i === 0 ? '80%' : '30%' }} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
           </aside>
         </div>
       </div>
-      {showModal && (
-        <PostModal
-          user={initialUser}
-          setShowModal={setShowModal}
-          setPosts={setPosts}
-        />
-      )}
+
+      {/* Creation Modal */}
+      <AnimatePresence>
+        {showModal && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowModal(false)}
+              className="absolute inset-0 bg-slate-900/60 backdrop-blur-md"
+            />
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95, y: 30 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 30 }}
+              className="relative w-full max-w-2xl bg-white rounded-[3rem] shadow-2xl overflow-hidden"
+            >
+              <div className="p-10">
+                <div className="flex justify-between items-center mb-10">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-2xl bg-indigo-50 flex items-center justify-center text-indigo-600">
+                      <Send size={24} />
+                    </div>
+                    <div>
+                      <h3 className="text-2xl font-black text-slate-900 font-outfit uppercase tracking-tight leading-none">Global Feed</h3>
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Visible to all alumni</p>
+                    </div>
+                  </div>
+                  <button onClick={() => setShowModal(false)} className="p-3 rounded-2xl bg-slate-50 text-slate-400 hover:text-rose-500 transition-all">
+                    <X size={20} />
+                  </button>
+                </div>
+
+                <form onSubmit={handleCreatePost} className="space-y-8">
+                  <textarea 
+                    value={postContent}
+                    onChange={(e) => setPostContent(e.target.value)}
+                    required
+                    placeholder="Share your professional milestone, career advice, or campus memories..."
+                    className="w-full h-48 border-none focus:ring-0 text-xl font-medium placeholder:text-slate-300 resize-none italic"
+                  />
+                  
+                  <div className="flex items-center justify-between pt-8 border-t border-slate-50">
+                    <div className="flex gap-4 text-slate-400">
+                      <button type="button" className="p-4 rounded-2xl hover:bg-slate-50 hover:text-indigo-600 transition-all"><ImageIcon size={24} /></button>
+                      <button type="button" className="p-4 rounded-2xl hover:bg-slate-50 hover:text-indigo-600 transition-all"><FileText size={24} /></button>
+                      <button type="button" className="p-4 rounded-2xl hover:bg-slate-50 hover:text-indigo-600 transition-all"><Calendar size={24} /></button>
+                    </div>
+                    <button 
+                      type="submit"
+                      disabled={!postContent.trim()}
+                      className="px-12 py-5 bg-slate-950 text-white rounded-[2rem] font-black text-xs uppercase tracking-widest hover:bg-indigo-600 disabled:opacity-20 disabled:hover:bg-slate-950 transition-all shadow-xl shadow-slate-200"
+                    >
+                      Post Community Update
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

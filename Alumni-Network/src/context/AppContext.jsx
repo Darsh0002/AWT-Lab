@@ -8,6 +8,28 @@ export const AppContextProvider = ({ children }) => {
 
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [jobs, setJobs] = useState([]);
+  const [posts, setPosts] = useState([]);
+  const [events, setEvents] = useState([]);
+
+  const fetchFeed = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+
+      const { data } = await axios.get(`${baseURL}/api/feed`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      setJobs(data.jobs || []);
+      setPosts(data.posts || []);
+      setEvents(data.events || []);
+    } catch (err) {
+      console.error("Feed fetch failed", err);
+    }
+  };
 
   const fetchUser = () => {
     try {
@@ -17,7 +39,9 @@ export const AppContextProvider = ({ children }) => {
         setLoading(false);
         return null;
       }
-      setUser(JSON.parse(token));
+      const userData = JSON.parse(token);
+      setUser(userData);
+      fetchFeed();
     } catch (err) {
       console.error("User fetch failed", err);
       localStorage.removeItem("alumnet-user");
@@ -40,6 +64,13 @@ export const AppContextProvider = ({ children }) => {
         loading,
         fetchUser,
         baseURL,
+        jobs,
+        setJobs,
+        posts,
+        setPosts,
+        events,
+        setEvents,
+        fetchFeed
       }}
     >
       {children}

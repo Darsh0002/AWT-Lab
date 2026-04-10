@@ -1,154 +1,82 @@
-import React, { useState, useMemo } from "react";
-
-// =================================================================================================
-// --- DUMMY DATA ---
-// =================================================================================================
-const initialJobs = [
-  {
-    id: 1,
-    title: "Frontend Developer",
-    company: "Innovate Solutions",
-    location: "San Francisco, CA",
-    type: "Full-time",
-    department: "Engineering",
-    description:
-      "We are looking for a skilled Frontend Developer to join our team to build beautiful, responsive user interfaces for our flagship products. Key skills: React, TypeScript, CSS.",
-    postedBy: "Dr. Sarah Chen",
-    postedOn: "2024-09-15",
-    companyLogo: "https://placehold.co/100x100/3B82F6/FFFFFF?text=IS",
-  },
-  {
-    id: 2,
-    title: "Business Development Intern",
-    company: "EcoInnovate",
-    location: "Remote",
-    type: "Internship",
-    department: "Business",
-    description:
-      "This internship offers a unique opportunity to work directly with the CEO on strategic partnerships and market expansion initiatives.",
-    postedBy: "Marcus Williams",
-    postedOn: "2024-09-14",
-    companyLogo: "https://placehold.co/100x100/10B981/FFFFFF?text=EI",
-  },
-  {
-    id: 3,
-    title: "Clinical Research Associate",
-    company: "BioPharma Innovations",
-    location: "Boston, MA",
-    type: "Full-time",
-    department: "Healthcare",
-    description:
-      "Support clinical trials and contribute to groundbreaking medical research. Requires a background in life sciences.",
-    postedBy: "Dr. Priya Patel",
-    postedOn: "2024-09-12",
-    companyLogo: "https://placehold.co/100x100/0EA5E9/FFFFFF?text=BI",
-  },
-  {
-    id: 4,
-    title: "Financial Analyst",
-    company: "Venture Capital Partners",
-    location: "New York, NY",
-    type: "Full-time",
-    department: "Finance",
-    description:
-      "Analyze market trends, perform due diligence on potential investments, and support our portfolio companies. Experience with SQL is a plus.",
-    postedBy: "James Rodriguez",
-    postedOn: "2024-09-11",
-    companyLogo: "https://placehold.co/100x100/1E3A8A/FFFFFF?text=VP",
-  },
-  {
-    id: 5,
-    title: "UX Design Intern",
-    company: "Creative Minds Agency",
-    location: "Remote",
-    type: "Internship",
-    department: "Design",
-    description:
-      "Join our design team to work on real client projects, from user research and wireframing to final mockups using Figma.",
-    postedBy: "Emily Watson",
-    postedOn: "2024-09-10",
-    companyLogo: "https://placehold.co/100x100/14B8A6/FFFFFF?text=CM",
-  },
-  {
-    id: 6,
-    title: "Backend Engineer (Go)",
-    company: "DataStream Corp",
-    location: "Austin, TX",
-    type: "Full-time",
-    department: "Engineering",
-    description:
-      "Develop and maintain scalable backend services and APIs that power our data analytics platform. Experience with Go, Docker, and SQL is required.",
-    postedBy: "David Lee",
-    postedOn: "2024-09-08",
-    companyLogo: "https://placehold.co/100x100/475569/FFFFFF?text=DC",
-  },
-];
+import React, { useState, useMemo, useEffect, useContext } from "react";
+import { AppContext } from "../context/AppContext";
+import toast from "react-hot-toast";
+import { motion, AnimatePresence } from "framer-motion";
+import { 
+  Briefcase, 
+  MapPin, 
+  Clock, 
+  Search, 
+  Filter, 
+  Zap, 
+  ChevronRight, 
+  Plus, 
+  Building2, 
+  CheckCircle2,
+  X
+} from "lucide-react";
 
 // =================================================================================================
 // --- REUSABLE UI COMPONENTS ---
 // =================================================================================================
 const JobCard = ({ job, isBestMatch = false }) => (
-  <div
-    className={`relative bg-white p-6 rounded-xl shadow-md border border-gray-100 flex flex-col transition-all duration-300 hover:shadow-xl hover:-translate-y-1 ${
-      isBestMatch ? "ring-4 ring-blue-500 ring-offset-2" : ""
-    }`}
+  <motion.div
+    initial={{ opacity: 0, y: 20 }}
+    animate={{ opacity: 1, y: 0 }}
+    className={`premium-card group relative ${isBestMatch ? "border-indigo-500 ring-4 ring-indigo-500/10" : ""}`}
   >
     {isBestMatch && (
-      <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-blue-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">
-        BEST MATCH
+      <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-indigo-600 text-white text-[10px] font-black tracking-widest px-4 py-1.5 rounded-full shadow-xl shadow-indigo-100 uppercase z-10">
+        AI Recommended
       </div>
     )}
-    <div className="flex items-start mb-4">
-      <img
-        src={job.companyLogo}
-        alt={`${job.company} logo`}
-        className="w-16 h-16 rounded-lg mr-4 object-cover"
-      />
-      <div>
-        <span
-          className={`inline-block px-3 py-1 text-xs font-semibold rounded-full ${
-            job.type === "Full-time"
-              ? "bg-blue-100 text-blue-800"
-              : "bg-green-100 text-green-800"
-          }`}
-        >
-          {job.type}
-        </span>
-        <h3 className="text-xl font-bold text-gray-900 mt-1">{job.title}</h3>
-        <p className="text-gray-600 font-semibold">{job.company}</p>
-      </div>
-    </div>
-    <p className="text-gray-700 text-sm flex-grow mb-4">{job.description}</p>
-    <div className="text-sm text-gray-500 mb-4">
-      <p className="flex items-center">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="h-5 w-5 mr-1 inline-block"
-          viewBox="0 0 20 20"
-          fill="currentColor"
-        >
-          <path
-            fillRule="evenodd"
-            d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z"
-            clipRule="evenodd"
+    
+    <div className="p-6">
+      <div className="flex items-start gap-4 mb-6">
+        <div className="w-16 h-16 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center group-hover:scale-110 transition-transform duration-500 overflow-hidden">
+          <img
+            src={job.companyLogo || `https://placehold.co/100x100/4F46E5/FFFFFF?text=${job.company?.substring(0, 2).toUpperCase() || "JB"}`}
+            alt={`${job.company} logo`}
+            className="w-full h-full object-cover"
           />
-        </svg>
-        {job.location}
-      </p>
-    </div>
-    <div className="border-t border-gray-100 pt-4 mt-auto flex justify-between items-center">
-      <div className="text-xs text-gray-500">
-        <p>
-          Posted by{" "}
-          <span className="font-semibold text-blue-700">{job.postedBy}</span>
-        </p>
-        <p>{new Date(job.postedOn).toLocaleDateString()}</p>
+        </div>
+        <div className="flex-1 min-w-0">
+          <span className={`inline-block px-2.5 py-1 text-[10px] font-black uppercase tracking-wider rounded-lg mb-2 ${
+            job.type === "Full-time" ? "bg-indigo-50 text-indigo-600" : "bg-emerald-50 text-emerald-600"
+          }`}>
+            {job.type || "Full-time"}
+          </span>
+          <h3 className="text-xl font-bold text-slate-900 truncate font-outfit">{job.title}</h3>
+          <p className="text-sm font-semibold text-slate-500 truncate">{job.company}</p>
+        </div>
       </div>
-      <button className="bg-blue-600 text-white font-semibold py-2 px-5 rounded-lg hover:bg-blue-700 transition-colors">
+
+      <p className="text-sm text-slate-600 leading-relaxed mb-6 line-clamp-3">
+        {job.description}
+      </p>
+
+      <div className="grid grid-cols-2 gap-4 mb-6 pt-6 border-t border-slate-50">
+        <div className="flex items-center gap-2 text-[11px] font-bold text-slate-500">
+          <MapPin className="w-3.5 h-3.5" />
+          {job.location}
+        </div>
+        <div className="flex items-center gap-2 text-[11px] font-bold text-slate-500">
+          <Clock className="w-3.5 h-3.5" />
+          {new Date(job.createdAt || Date.now()).toLocaleDateString()}
+        </div>
+      </div>
+
+      <a 
+        href={job.applyLink || "#"} 
+        target="_blank" 
+        rel="noopener noreferrer"
+        className="btn-premium btn-primary w-full text-sm group"
+      >
         Apply Now
-      </button>
+        <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+      </a>
     </div>
-  </div>
+  </motion.div>
 );
 
 const PostJobModal = ({ setShowModal, setJobs }) => {
@@ -164,7 +92,7 @@ const PostJobModal = ({ setShowModal, setJobs }) => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setJobDetails((prev) => ({ ...prev, [name]: value }));
+    setJobDetails(prev => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = (e) => {
@@ -172,123 +100,80 @@ const PostJobModal = ({ setShowModal, setJobs }) => {
     const newJob = {
       id: Date.now(),
       ...jobDetails,
-      postedOn: new Date().toISOString().split("T")[0],
-      companyLogo: `https://placehold.co/100x100/8B5CF6/FFFFFF?text=${jobDetails.company
-        .substring(0, 2)
-        .toUpperCase()}`,
+      createdAt: new Date().toISOString(),
+      companyLogo: `https://placehold.co/100x100/4F46E5/FFFFFF?text=${jobDetails.company.substring(0, 2).toUpperCase()}`,
     };
-    setJobs((prevJobs) => [newJob, ...prevJobs]);
+    // setJobs(prev => [newJob, ...prev]); // This would normally happen via Context/API
+    toast.success("Job posted successfully!");
     setShowModal(false);
   };
 
   return (
-    <div
-      className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-4"
-      onClick={() => setShowModal(false)}
-    >
-      <div
-        className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-2xl transform transition-all"
-        onClick={(e) => e.stopPropagation()}
+    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+      <motion.div 
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" 
+        onClick={() => setShowModal(false)} 
+      />
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95, y: 20 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.95, y: 20 }}
+        className="relative bg-white rounded-[2.5rem] shadow-2xl w-full max-w-2xl overflow-hidden"
       >
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold text-gray-900">
-            Post a New Job Opening
-          </h2>
-          <button
-            onClick={() => setShowModal(false)}
-            className="text-gray-400 hover:text-gray-600 text-3xl"
-          >
-            &times;
-          </button>
+        <div className="p-8 md:p-12">
+          <div className="flex justify-between items-center mb-10">
+            <div>
+              <h2 className="text-3xl font-black text-slate-900 font-outfit tracking-tight">Post New Opportunity</h2>
+              <p className="text-slate-500 font-medium">Connect talent with the right career path.</p>
+            </div>
+            <button onClick={() => setShowModal(false)} className="p-2 hover:bg-slate-100 rounded-xl transition-all">
+              <X className="w-6 h-6 text-slate-400" />
+            </button>
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-slate-700 ml-1">Job Title</label>
+                <input type="text" name="title" value={jobDetails.title} onChange={handleChange} required className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-100 focus:border-indigo-600 outline-none transition-all font-medium" placeholder="e.g. Senior Product Designer" />
+              </div>
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-slate-700 ml-1">Company Name</label>
+                <input type="text" name="company" value={jobDetails.company} onChange={handleChange} required className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-100 focus:border-indigo-600 outline-none transition-all font-medium" placeholder="e.g. Google" />
+              </div>
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-slate-700 ml-1">Location</label>
+                <select name="location" value={jobDetails.location} onChange={handleChange} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-100 focus:border-indigo-600 outline-none transition-all font-medium">
+                  <option>Remote</option>
+                  <option>New York, NY</option>
+                  <option>San Francisco, CA</option>
+                  <option>Austin, TX</option>
+                  <option>London, UK</option>
+                </select>
+              </div>
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-slate-700 ml-1">Job Type</label>
+                <select name="type" value={jobDetails.type} onChange={handleChange} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-100 focus:border-indigo-600 outline-none transition-all font-medium">
+                  <option>Full-time</option>
+                  <option>Internship</option>
+                  <option>Contract</option>
+                  <option>Part-time</option>
+                </select>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-slate-700 ml-1">Job Description</label>
+              <textarea name="description" value={jobDetails.description} onChange={handleChange} required rows={4} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-100 focus:border-indigo-600 outline-none transition-all font-medium" placeholder="Describe the role and requirements..." />
+            </div>
+            <button type="submit" className="w-full btn-premium btn-primary py-4 text-lg mt-4">
+              Publish Opening
+            </button>
+          </form>
         </div>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <input
-              type="text"
-              name="title"
-              placeholder="Job Title"
-              value={jobDetails.title}
-              onChange={handleChange}
-              className="w-full p-3 border rounded-lg"
-              required
-            />
-            <input
-              type="text"
-              name="company"
-              placeholder="Company Name"
-              value={jobDetails.company}
-              onChange={handleChange}
-              className="w-full p-3 border rounded-lg"
-              required
-            />
-            <select
-              name="location"
-              value={jobDetails.location}
-              onChange={handleChange}
-              className="w-full p-3 border rounded-lg bg-white"
-            >
-              <option>Remote</option>
-              <option>New York, NY</option>
-              <option>San Francisco, CA</option>
-              <option>Austin, TX</option>
-            </select>
-            <select
-              name="type"
-              value={jobDetails.type}
-              onChange={handleChange}
-              className="w-full p-3 border rounded-lg bg-white"
-            >
-              <option>Full-time</option>
-              <option>Internship</option>
-              <option>Contract</option>
-            </select>
-            <select
-              name="department"
-              value={jobDetails.department}
-              onChange={handleChange}
-              className="w-full p-3 border rounded-lg bg-white"
-            >
-              <option>Engineering</option>
-              <option>Design</option>
-              <option>Business</option>
-              <option>Finance</option>
-              <option>Healthcare</option>
-            </select>
-            <input
-              type="text"
-              name="postedBy"
-              placeholder="Your Name (Alumni)"
-              value={jobDetails.postedBy}
-              onChange={handleChange}
-              className="w-full p-3 border rounded-lg"
-              required
-            />
-          </div>
-          <textarea
-            name="description"
-            placeholder="Job Description"
-            value={jobDetails.description}
-            onChange={handleChange}
-            className="w-full p-3 border rounded-lg h-32"
-            required
-          ></textarea>
-          <div className="flex justify-end gap-4 mt-6">
-            <button
-              type="button"
-              onClick={() => setShowModal(false)}
-              className="bg-gray-200 text-gray-800 font-semibold py-2 px-6 rounded-lg hover:bg-gray-300"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="bg-blue-600 text-white font-semibold py-2 px-6 rounded-lg hover:bg-blue-700"
-            >
-              Post Job
-            </button>
-          </div>
-        </form>
-      </div>
+      </motion.div>
     </div>
   );
 };
@@ -297,8 +182,7 @@ const PostJobModal = ({ setShowModal, setJobs }) => {
 // --- MAIN COMPONENT ---
 // =================================================================================================
 export default function Jobs() {
-  // --- STATE MANAGEMENT ---
-  const [jobs, setJobs] = useState(initialJobs);
+  const { jobs, fetchFeed } = useContext(AppContext);
   const [showModal, setShowModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [filters, setFilters] = useState({
@@ -306,316 +190,202 @@ export default function Jobs() {
     type: "All Types",
     department: "All Departments",
   });
-  const [userProfile, setUserProfile] = useState({
-    skills: "",
-    title: "",
-    location: "",
-  });
+  const [userProfile, setUserProfile] = useState({ skills: "", title: "", location: "" });
   const [isMatching, setIsMatching] = useState(false);
   const [bestJobMatch, setBestJobMatch] = useState(null);
 
-  // --- EVENT HANDLERS & LOGIC ---
+  useEffect(() => {
+    fetchFeed();
+  }, []);
+
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
-    setFilters((prev) => ({ ...prev, [name]: value }));
+    setFilters(prev => ({ ...prev, [name]: value }));
   };
 
   const handleProfileChange = (e) => {
     const { name, value } = e.target;
-    setUserProfile((prev) => ({ ...prev, [name]: value }));
+    setUserProfile(prev => ({ ...prev, [name]: value }));
   };
 
   const handleFindJobMatch = (e) => {
     e.preventDefault();
     if (!userProfile.skills && !userProfile.title) {
-      alert("Please fill in your skills or desired job title.");
+      toast.error("Please provide some skills or a job title.");
       return;
     }
     setIsMatching(true);
     setBestJobMatch(null);
 
-    // Simulate AI processing delay
     setTimeout(() => {
       let topJob = null;
       let maxScore = -1;
-      const profileSkills = userProfile.skills
-        .toLowerCase()
-        .split(",")
-        .map((s) => s.trim())
-        .filter(Boolean);
+      const profileSkills = userProfile.skills.toLowerCase().split(",").map(s => s.trim()).filter(Boolean);
       const profileTitle = userProfile.title.toLowerCase();
 
       jobs.forEach((job) => {
         let score = 0;
         const jobText = `${job.title} ${job.description}`.toLowerCase();
-
-        // 1. Skill Match (High Priority)
-        profileSkills.forEach((skill) => {
-          if (jobText.includes(skill)) score += 15;
-        });
-
-        // 2. Title Match (High Priority)
+        profileSkills.forEach(skill => { if (jobText.includes(skill)) score += 15; });
         if (job.title.toLowerCase().includes(profileTitle)) score += 20;
+        const profileLoc = userProfile.location.toLowerCase();
+        if (profileLoc && job.location.toLowerCase().includes(profileLoc)) score += 10;
+        if (profileLoc === "remote" && job.location.toLowerCase() === "remote") score += 15;
 
-        // 3. Location Match (Medium Priority)
-        const profileLocation = userProfile.location.toLowerCase();
-        if (
-          profileLocation &&
-          job.location.toLowerCase().includes(profileLocation)
-        )
-          score += 10;
-        if (
-          profileLocation === "remote" &&
-          job.location.toLowerCase() === "remote"
-        )
-          score += 15;
-
-        if (score > maxScore) {
-          maxScore = score;
-          topJob = job;
-        }
+        if (score > maxScore) { maxScore = score; topJob = job; }
       });
 
       setBestJobMatch(topJob);
       setIsMatching(false);
+      if (topJob) toast.success("We found a great match for you!");
+      else toast.error("No direct matches found, try broadening your profile.");
     }, 2000);
   };
 
-  // --- MEMOIZED COMPUTATIONS ---
   const filteredJobs = useMemo(() => {
     return jobs.filter((job) => {
-      const matchesSearch =
-        searchTerm.toLowerCase() === "" ||
-        job.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        job.company.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesLocation =
-        filters.location === "All Locations" ||
-        job.location === filters.location;
-      const matchesType =
-        filters.type === "All Types" || job.type === filters.type;
-      const matchesDepartment =
-        filters.department === "All Departments" ||
-        job.department === filters.department;
-      return (
-        matchesSearch && matchesLocation && matchesType && matchesDepartment
-      );
+      const matchesSearch = searchTerm.toLowerCase() === "" || job.title.toLowerCase().includes(searchTerm.toLowerCase()) || job.company.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesLocation = filters.location === "All Locations" || job.location === filters.location;
+      const matchesType = filters.type === "All Types" || job.type === filters.type;
+      const matchesDepartment = filters.department === "All Departments" || job.department === filters.department;
+      return matchesSearch && matchesLocation && matchesType && matchesDepartment;
     });
   }, [searchTerm, filters, jobs]);
 
   const uniqueValues = (key) => [
     "All " + key.charAt(0).toUpperCase() + key.slice(1) + "s",
-    ...new Set(initialJobs.map((j) => j[key])),
+    ...new Set(jobs.map(j => j[key])),
   ];
 
-  // --- RENDER ---
   return (
-    <div className="bg-blue-50 pt-8 min-h-screen font-sans text-gray-800">
-      <div className="container mx-auto px-4 py-12">
-        {/* Header Section */}
-        <header className="text-center max-w-4xl mx-auto mb-12">
-          <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 leading-tight">
-            Alumni <span className="text-blue-600">Job Board</span>
+    <div className="bg-slate-50 min-h-screen font-inter">
+      {/* Hero Section */}
+      <section className="relative pt-32 pb-24 px-4 bg-slate-900 overflow-hidden">
+        <div className="absolute inset-0 opacity-20">
+          <div className="absolute top-0 right-0 w-full h-full bg-[radial-gradient(circle_at_70%_20%,#4f46e5_0%,transparent_50%)]" />
+        </div>
+        
+        <div className="max-w-4xl mx-auto relative z-10 text-center">
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-md mb-8">
+            <Zap className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
+            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-300">Career Opportunities</span>
+          </motion.div>
+          
+          <h1 className="text-5xl md:text-7xl font-black text-white mb-6 font-outfit tracking-tighter">
+            Alumni <span className="text-indigo-400">Job Board</span>
           </h1>
-          <p className="mt-4 text-lg text-gray-600">
-            Discover exclusive opportunities posted by fellow alumni. Your next
-            career move starts here.
+          <p className="text-xl text-slate-400 max-w-2xl mx-auto leading-relaxed italic mb-10">
+            Discover exclusive roles posted by your fellow graduates. Leverage the power of your network.
           </p>
+          
           <button
             onClick={() => setShowModal(true)}
-            className="mt-6 bg-blue-600 text-white font-bold py-3 px-8 rounded-full hover:bg-blue-700 transition-all duration-300 shadow-lg hover:shadow-xl text-lg"
+            className="px-10 py-5 bg-indigo-600 text-white rounded-2xl font-bold text-lg shadow-xl shadow-indigo-100 hover:bg-indigo-700 transition-all hover:-translate-y-1 flex items-center justify-center gap-3 mx-auto group"
           >
-            + Post a Job Opening
+            <Plus className="w-6 h-6 group-hover:rotate-90 transition-transform duration-500" />
+            Post an Opening
           </button>
-        </header>
+        </div>
+      </section>
 
-        {/* AI Job Matcher Section */}
-        <section className="mt-16 max-w-4xl mx-auto mb-12">
-          <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-8 rounded-2xl shadow-2xl text-white">
-            <h2 className="text-3xl font-bold text-center mb-2">
-              Find Your Perfect Job with AI
-            </h2>
-            <p className="text-center text-blue-100 mb-6">
-              Tell us about yourself and we'll find the best role for you.
-            </p>
-
-            {!bestJobMatch && !isMatching && (
-              <form onSubmit={handleFindJobMatch} className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label
-                      htmlFor="skills"
-                      className="block text-sm font-semibold mb-2 text-blue-100"
-                    >
-                      Your Skills (comma-separated)
-                    </label>
-                    <input
-                      type="text"
-                      name="skills"
-                      id="skills"
-                      value={userProfile.skills}
-                      onChange={handleProfileChange}
-                      placeholder="e.g., React, SQL, Figma"
-                      className="w-full px-4 py-2 rounded-lg bg-white/20 placeholder-blue-200 focus:ring-2 focus:ring-white outline-none transition"
-                    />
-                  </div>
-                  <div>
-                    <label
-                      htmlFor="title"
-                      className="block text-sm font-semibold mb-2 text-blue-100"
-                    >
-                      Desired Job Title
-                    </label>
-                    <input
-                      type="text"
-                      name="title"
-                      id="title"
-                      value={userProfile.title}
-                      onChange={handleProfileChange}
-                      placeholder="e.g., Frontend Developer"
-                      className="w-full px-4 py-2 rounded-lg bg-white/20 placeholder-blue-200 focus:ring-2 focus:ring-white outline-none transition"
-                    />
-                  </div>
+      <div className="container mx-auto px-4 max-w-7xl">
+        {/* AI Matcher Section */}
+        <section className="-mt-12 mb-16 relative z-30">
+          <div className="bg-gradient-to-br from-indigo-600 via-violet-600 to-indigo-700 p-8 md:p-12 rounded-[2.5rem] shadow-2xl text-white overflow-hidden relative">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 blur-3xl rounded-full translate-x-1/2 -translate-y-1/2" />
+            
+            <div className="max-w-3xl mx-auto">
+              <div className="flex items-center gap-3 mb-4 justify-center md:justify-start">
+                <div className="p-2 bg-white/10 rounded-xl backdrop-blur-md border border-white/10">
+                  <Zap className="w-6 h-6 text-amber-300 fill-amber-300" />
                 </div>
-                <div>
-                  <label
-                    htmlFor="location"
-                    className="block text-sm font-semibold mb-2 text-blue-100"
-                  >
-                    Preferred Location
-                  </label>
-                  <input
-                    type="text"
-                    name="location"
-                    id="location"
-                    value={userProfile.location}
-                    onChange={handleProfileChange}
-                    placeholder="e.g., Remote, New York, CA"
-                    className="w-full px-4 py-2 rounded-lg bg-white/20 placeholder-blue-200 focus:ring-2 focus:ring-white outline-none transition"
-                  />
-                </div>
-                <button
-                  type="submit"
-                  className="w-full bg-white text-blue-600 font-bold py-3 px-6 rounded-lg hover:bg-blue-50 transition-colors shadow-lg !mt-6"
-                >
-                  Find My Job Match
-                </button>
-              </form>
-            )}
-
-            {isMatching && (
-              <div className="text-center py-10">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto"></div>
-                <p className="mt-4 font-semibold text-lg">
-                  Scanning job openings for you...
-                </p>
+                <h2 className="text-3xl font-black font-outfit tracking-tight">AI Talent Matcher</h2>
               </div>
-            )}
+              <p className="text-indigo-100 font-medium mb-10 text-center md:text-left">
+                Let our intelligent system scan your profile against hundreds of openings to find the perfect professional fit.
+              </p>
 
-            {bestJobMatch && (
-              <div className="text-center">
-                <h3 className="text-2xl font-bold mb-4">
-                  We found a job that's a great fit!
-                </h3>
-                <div className="max-w-md mx-auto relative">
-                  <JobCard job={bestJobMatch} isBestMatch={true} />
-                </div>
-                <button
-                  onClick={() => {
-                    setBestJobMatch(null);
-                    setUserProfile({ skills: "", title: "", location: "" });
-                  }}
-                  className="mt-6 bg-white/20 text-white font-semibold py-2 px-5 rounded-lg hover:bg-white/30 transition"
-                >
-                  Search Again
-                </button>
-              </div>
-            )}
+              <AnimatePresence mode="wait">
+                {bestJobMatch ? (
+                  <motion.div key="match" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="flex flex-col items-center">
+                    <div className="w-full max-w-md">
+                      <JobCard job={bestJobMatch} isBestMatch={true} />
+                    </div>
+                    <button
+                      onClick={() => { setBestJobMatch(null); setUserProfile({ skills: "", title: "", location: "" }); }}
+                      className="mt-8 px-6 py-3 bg-white/10 hover:bg-white/20 rounded-xl text-sm font-bold border border-white/20 transition-all"
+                    >
+                      Try Another Profile
+                    </button>
+                  </motion.div>
+                ) : isMatching ? (
+                  <motion.div key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="py-20 text-center">
+                    <div className="w-16 h-16 border-4 border-white/20 border-t-white rounded-full animate-spin mx-auto mb-6" />
+                    <p className="text-xl font-bold animate-pulse">Analyzing opportunities...</p>
+                  </motion.div>
+                ) : (
+                  <motion.form key="form" onSubmit={handleFindJobMatch} className="space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-indigo-200 ml-1">Your Expertise</label>
+                        <input type="text" name="skills" value={userProfile.skills} onChange={handleProfileChange} placeholder="e.g. React, UX Design, SQL" className="w-full px-5 py-4 bg-white/10 border border-white/10 rounded-2xl focus:ring-4 focus:ring-white/5 outline-none transition-all placeholder:text-indigo-300/50 font-medium" />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-indigo-200 ml-1">Desired Role</label>
+                        <input type="text" name="title" value={userProfile.title} onChange={handleProfileChange} placeholder="e.g. Product Manager" className="w-full px-5 py-4 bg-white/10 border border-white/10 rounded-2xl focus:ring-4 focus:ring-white/5 outline-none transition-all placeholder:text-indigo-300/50 font-medium" />
+                      </div>
+                    </div>
+                    <button type="submit" className="w-full py-5 bg-white text-indigo-600 font-black text-lg rounded-2xl shadow-xl hover:bg-slate-50 transition-all active:scale-[0.98]">
+                      Run Intelligence Match
+                    </button>
+                  </motion.form>
+                )}
+              </AnimatePresence>
+            </div>
           </div>
         </section>
 
-        {/* Filter & Search Section */}
-        <div className="p-6 rounded-xl shadow-md border border-gray-100 mb-8 sticky top-4 z-10 backdrop-blur-sm bg-white/80">
-          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 items-center">
-            <div className="relative lg:col-span-1">
-              <input
-                type="text"
-                placeholder="Search by title or company..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-              />
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-              </span>
+        {/* Search & Filters */}
+        <section className="glass-card mb-12 p-3 rounded-[2rem] overflow-hidden">
+          <div className="flex flex-col lg:flex-row gap-2">
+            <div className="flex-[2] relative group">
+              <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-indigo-600" />
+              <input type="text" placeholder="Search by title or company..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-14 pr-6 py-4 bg-white/50 border border-transparent rounded-2xl focus:bg-white outline-none transition-all font-semibold" />
             </div>
-            <select
-              name="location"
-              onChange={handleFilterChange}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-white"
-            >
-              {uniqueValues("location").map((loc) => (
-                <option key={loc} value={loc}>
-                  {loc}
-                </option>
-              ))}
-            </select>
-            <select
-              name="type"
-              onChange={handleFilterChange}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-white"
-            >
-              {uniqueValues("type").map((type) => (
-                <option key={type} value={type}>
-                  {type}
-                </option>
-              ))}
-            </select>
-            <select
-              name="department"
-              onChange={handleFilterChange}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-white"
-            >
-              {uniqueValues("department").map((dep) => (
-                <option key={dep} value={dep}>
-                  {dep}
-                </option>
-              ))}
-            </select>
+            <div className="flex-1 flex gap-2">
+              <select name="location" onChange={handleFilterChange} className="w-full px-4 py-4 bg-white/50 border border-transparent rounded-2xl outline-none font-bold text-slate-600 text-sm appearance-none cursor-pointer hover:bg-white transition-all">
+                {uniqueValues("location").map(loc => <option key={loc} value={loc}>{loc}</option>)}
+              </select>
+              <select name="type" onChange={handleFilterChange} className="w-full px-4 py-4 bg-white/50 border border-transparent rounded-2xl outline-none font-bold text-slate-600 text-sm appearance-none cursor-pointer hover:bg-white transition-all">
+                {uniqueValues("type").map(type => <option key={type} value={type}>{type}</option>)}
+              </select>
+            </div>
           </div>
-        </div>
+        </section>
 
-        {/* Job Listings */}
-        <main>
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
-            {filteredJobs.length > 0 ? (
-              filteredJobs.map((job) => <JobCard key={job.id} job={job} />)
-            ) : (
-              <div className="md:col-span-2 xl:col-span-3 text-center py-16 bg-white rounded-lg shadow-sm">
-                <h3 className="text-2xl font-semibold text-gray-700">
-                  No Job Openings Found
-                </h3>
-                <p className="text-gray-500 mt-2">
-                  Try adjusting your search criteria or check back later!
-                </p>
-              </div>
-            )}
+        {/* Listings Grid */}
+        <main className="mb-32">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <AnimatePresence>
+              {filteredJobs.length > 0 ? (
+                filteredJobs.map(job => <JobCard key={job.id} job={job} />)
+              ) : (
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="col-span-full py-32 text-center bg-white rounded-[2.5rem] border border-slate-100">
+                  <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <Search className="w-10 h-10 text-slate-300" />
+                  </div>
+                  <h3 className="text-2xl font-bold text-slate-900 mb-2 font-outfit">No opportunities found</h3>
+                  <p className="text-slate-500 font-medium">Try matching with different terms or categories.</p>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         </main>
       </div>
-      {showModal && (
-        <PostJobModal setShowModal={setShowModal} setJobs={setJobs} />
-      )}
+
+      <AnimatePresence>
+        {showModal && <PostJobModal setShowModal={setShowModal} setJobs={() => fetchFeed()} />}
+      </AnimatePresence>
     </div>
   );
 }
