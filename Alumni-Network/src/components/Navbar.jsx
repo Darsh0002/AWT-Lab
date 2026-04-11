@@ -36,7 +36,7 @@ export default function Navbar() {
   };
 
   const navItems = [
-    { name: "Directory", path: "/alumni-directory" },
+    { name: "Directory", path: "/directory" },
     { name: "Jobs", path: "/jobs" },
     { name: "Posts", path: "/posts" },
     { name: "Events", path: "/events" },
@@ -101,24 +101,12 @@ export default function Navbar() {
 
               {user ? (
                 <div className="flex items-center space-x-4">
-                  <div className={`flex items-center space-x-3 px-3 py-1.5 rounded-full border transition-all duration-300 ${
-                    scrolled 
-                      ? "bg-slate-50 border-slate-200/50" 
-                      : "bg-white/5 border-white/10 text-white"
-                  }`}>
-                    <div className="w-7 h-7 rounded-full bg-indigo-600 flex items-center justify-center text-white text-[10px] font-bold">
-                      {user.name?.charAt(0) || "U"}
-                    </div>
-                    <span className="text-xs font-bold truncate max-w-[100px]">
-                      {user.name || "User"}
-                    </span>
-                  </div>
                   <button
                     onClick={handleLogout}
-                    className="p-2 rounded-xl text-slate-400 hover:text-red-600 hover:bg-red-50 transition-all duration-300"
-                    title="Logout"
+                    className="flex items-center gap-2 px-3 py-2 rounded-xl text-slate-400 hover:text-red-600 hover:bg-red-50 transition-all duration-300 group"
                   >
-                    <LogOut className="w-5 h-5" />
+                    <LogOut className="w-4 h-4" />
+                    <span className="text-xs font-bold">Log Out</span>
                   </button>
                 </div>
               ) : (

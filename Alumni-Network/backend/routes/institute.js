@@ -45,7 +45,11 @@ router.get("/me", protect, async (req, res) => {
       id: institute._id,
       name: institute.instituteName,
       email: institute.email,
-      website: institute.website
+      website: institute.website,
+      phone: institute.phone,
+      address: institute.address,
+      city: institute.city,
+      state: institute.state
     });
 
   } catch (error) {

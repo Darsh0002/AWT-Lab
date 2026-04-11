@@ -13,7 +13,9 @@ import {
   Plus, 
   Building2, 
   CheckCircle2,
-  X
+  X,
+  DollarSign,
+  User as UserIcon
 } from "lucide-react";
 
 // =================================================================================================
@@ -64,6 +66,18 @@ const JobCard = ({ job, isBestMatch = false }) => (
           <Clock className="w-3.5 h-3.5" />
           {new Date(job.createdAt || Date.now()).toLocaleDateString()}
         </div>
+        {job.salary && (
+          <div className="flex items-center gap-2 text-[11px] font-bold text-emerald-600">
+            <DollarSign className="w-3.5 h-3.5" />
+            {job.salary}
+          </div>
+        )}
+        {job.posterName && (
+          <div className="flex items-center gap-2 text-[11px] font-bold text-indigo-600">
+            <UserIcon className="w-3.5 h-3.5" />
+            Posted by {job.posterName}
+          </div>
+        )}
       </div>
 
       <a 
@@ -79,7 +93,9 @@ const JobCard = ({ job, isBestMatch = false }) => (
   </motion.div>
 );
 
-const PostJobModal = ({ setShowModal, setJobs }) => {
+const PostJobModal = ({ setShowModal }) => {
+  const { createJob } = useContext(AppContext);
+  const [loading, setLoading] = useState(false);
   const [jobDetails, setJobDetails] = useState({
     title: "",
     company: "",
@@ -87,7 +103,8 @@ const PostJobModal = ({ setShowModal, setJobs }) => {
     type: "Full-time",
     department: "Engineering",
     description: "",
-    postedBy: "",
+    salary: "",
+    applyLink: "",
   });
 
   const handleChange = (e) => {
@@ -95,17 +112,26 @@ const PostJobModal = ({ setShowModal, setJobs }) => {
     setJobDetails(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const newJob = {
-      id: Date.now(),
-      ...jobDetails,
-      createdAt: new Date().toISOString(),
-      companyLogo: `https://placehold.co/100x100/4F46E5/FFFFFF?text=${jobDetails.company.substring(0, 2).toUpperCase()}`,
-    };
-    // setJobs(prev => [newJob, ...prev]); // This would normally happen via Context/API
-    toast.success("Job posted successfully!");
-    setShowModal(false);
+    setLoading(true);
+    
+    // Validate required fields
+    if (!jobDetails.title || !jobDetails.company || !jobDetails.description) {
+      toast.error("Please fill in all required fields.");
+      setLoading(false);
+      return;
+    }
+
+    const res = await createJob(jobDetails);
+    
+    if (res.success) {
+      toast.success("Job posted successfully!");
+      setShowModal(false);
+    } else {
+      toast.error(res.error || "Failed to post job.");
+    }
+    setLoading(false);
   };
 
   return (
@@ -164,12 +190,33 @@ const PostJobModal = ({ setShowModal, setJobs }) => {
                 </select>
               </div>
             </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-slate-700 ml-1">Salary Range</label>
+                <input type="text" name="salary" value={jobDetails.salary} onChange={handleChange} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-100 focus:border-indigo-600 outline-none transition-all font-medium" placeholder="e.g. $80k - $120k" />
+              </div>
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-slate-700 ml-1">Application URL</label>
+                <input type="url" name="applyLink" value={jobDetails.applyLink} onChange={handleChange} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-100 focus:border-indigo-600 outline-none transition-all font-medium" placeholder="https://..." />
+              </div>
+            </div>
             <div className="space-y-2">
               <label className="text-xs font-bold text-slate-700 ml-1">Job Description</label>
               <textarea name="description" value={jobDetails.description} onChange={handleChange} required rows={4} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-100 focus:border-indigo-600 outline-none transition-all font-medium" placeholder="Describe the role and requirements..." />
             </div>
-            <button type="submit" className="w-full btn-premium btn-primary py-4 text-lg mt-4">
-              Publish Opening
+            <button 
+              type="submit" 
+              disabled={loading}
+              className={`w-full btn-premium btn-primary py-4 text-lg mt-4 flex items-center justify-center gap-2 ${loading ? "opacity-70 cursor-not-allowed" : ""}`}
+            >
+              {loading ? (
+                <>
+                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  Publishing...
+                </>
+              ) : (
+                "Publish Opening"
+              )}
             </button>
           </form>
         </div>

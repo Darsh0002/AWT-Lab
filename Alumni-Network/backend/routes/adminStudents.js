@@ -8,19 +8,23 @@ const router = express.Router();
 // GET all students for logged-in admin's institute
 router.get("/students", protect, async (req, res) => {
   try {
-    // Only admin allowed
-    if (req.user.role !== "admin") {
-      return res.status(403).json({
-        message: "Access denied. Admin only.",
+    let instituteId;
+    
+    // Resolve institute based on role
+    if (req.user.role === "admin") {
+      const institute = await Institute.findOne({
+        adminUser: req.user.id,
       });
+      if (institute) instituteId = institute._id;
+    } else {
+      // For student/alumni, find via their student record
+      const student = await Student.findOne({
+        userId: req.user.id,
+      });
+      if (student) instituteId = student.instituteId;
     }
 
-    // Find institute of logged-in admin
-    const institute = await Institute.findOne({
-      adminUser: req.user.id,
-    });
-
-    if (!institute) {
+    if (!instituteId) {
       return res.status(404).json({
         message: "Institute not found",
       });
@@ -28,7 +32,7 @@ router.get("/students", protect, async (req, res) => {
 
     // Fetch students of this institute
     const students = await Student.find({
-      instituteId: institute._id,
+      instituteId: instituteId,
     }).select("-password"); // 🔒 never send password
 
     const formattedStudents = students.map((student) => {

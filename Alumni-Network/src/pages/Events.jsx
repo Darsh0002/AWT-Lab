@@ -36,7 +36,7 @@ const Events = () => {
 
   const handleProposalSubmit = (e) => {
     e.preventDefault();
-    toast.success("Event proposal submitted successfully! Our team will review it soon.");
+    toast.success("Event proposal submitted successfully! Wait for Admin Approval.");
     setShowProposalForm(false);
     setProposalForm({
       title: "",
@@ -184,9 +184,6 @@ const Events = () => {
                         </div>
                       </div>
                     </div>
-                    <button className="w-full py-4 bg-slate-950 text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] hover:bg-indigo-600 transition-all shadow-xl shadow-slate-200 flex items-center justify-center gap-2 group/btn">
-                      Secure Seat <ArrowRight size={16} className="group-hover/btn:translate-x-1 transition-transform" />
-                    </button>
                   </div>
                 </motion.div>
               ))
@@ -197,59 +194,6 @@ const Events = () => {
             )}
           </div>
         </div>
-
-        {/* Regular Events Section */}
-        <section className="mb-24">
-          <div className="flex justify-between items-end mb-10">
-            <div>
-              <h2 className="text-[10px] font-black uppercase tracking-[0.3em] text-indigo-600 mb-2">Timeline</h2>
-              <h3 className="text-4xl font-black text-slate-900 font-outfit tracking-tight uppercase">Upcoming Gatherings</h3>
-            </div>
-            <Link to="/events" className="text-indigo-600 font-black text-xs uppercase tracking-widest flex items-center gap-2 hover:translate-x-1 transition-transform">
-              Sync Calendar <ChevronRight size={16} />
-            </Link>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {upcomingEvents.map((event, i) => (
-              <motion.div 
-                key={i}
-                initial={{ opacity: 0, scale: 0.95 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                className="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-lg hover:shadow-2xl transition-all duration-300 group"
-              >
-                <div className="flex justify-between items-start mb-8">
-                  <div className="w-14 h-14 rounded-2xl bg-indigo-50 border border-indigo-100 flex flex-col items-center justify-center text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white transition-all duration-500 flex-shrink-0">
-                    <span className="text-[10px] font-black uppercase tracking-widest leading-none mb-1">
-                      {new Date(event.date).toLocaleString('default', { month: 'short' })}
-                    </span>
-                    <span className="text-2xl font-black leading-none">
-                      {new Date(event.date).getDate()}
-                    </span>
-                  </div>
-                  <div className="px-3 py-1 rounded-full bg-slate-50 border border-slate-100 text-[9px] font-black uppercase tracking-[0.2em] text-slate-400">
-                    Registration Open
-                  </div>
-                </div>
-                <h4 className="text-xl font-black text-slate-900 font-outfit mb-4 group-hover:text-indigo-600 transition-colors uppercase tracking-tight line-clamp-1">{event.title}</h4>
-                <div className="space-y-3 mb-8">
-                  <div className="flex items-center gap-2 text-slate-400">
-                    <MapPin size={14} className="text-indigo-300" />
-                    <span className="text-xs font-bold truncate uppercase tracking-tight">{event.location}</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-slate-400">
-                    <Clock size={14} className="text-emerald-300" />
-                    <span className="text-xs font-bold uppercase tracking-tight">18:00 Local Time</span>
-                  </div>
-                </div>
-                <button className="w-full py-4 bg-slate-50 hover:bg-indigo-50 text-indigo-600 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-2">
-                  View Invitation <ArrowRight size={14} />
-                </button>
-              </motion.div>
-            ))}
-          </div>
-        </section>
 
         {/* Organize Section */}
         <section className="relative p-12 md:p-24 bg-gradient-to-br from-indigo-600 to-violet-700 rounded-[3rem] text-center overflow-hidden shadow-2xl shadow-indigo-100">

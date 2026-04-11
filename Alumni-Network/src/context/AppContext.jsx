@@ -11,6 +11,8 @@ export const AppContextProvider = ({ children }) => {
   const [jobs, setJobs] = useState([]);
   const [posts, setPosts] = useState([]);
   const [events, setEvents] = useState([]);
+  const [students, setStudents] = useState([]);
+  const [institute, setInstitute] = useState(null);
 
   const fetchFeed = async () => {
     try {
@@ -28,6 +30,40 @@ export const AppContextProvider = ({ children }) => {
       setEvents(data.events || []);
     } catch (err) {
       console.error("Feed fetch failed", err);
+    }
+  };
+
+  const fetchInstituteStudents = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+
+      const { data } = await axios.get(`${baseURL}/api/admin/students`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      setStudents(data.students || []);
+    } catch (err) {
+      console.error("Institute students fetch failed", err);
+    }
+  };
+
+  const fetchInstitute = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+
+      const { data } = await axios.get(`${baseURL}/api/institute/me`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      setInstitute(data);
+    } catch (err) {
+      console.error("Institute fetch failed", err);
     }
   };
 
@@ -57,7 +93,9 @@ export const AppContextProvider = ({ children }) => {
       }
       const userData = JSON.parse(token);
       setUser(userData);
+      console.log(userData);
       fetchFeed();
+      fetchInstitute();
     } catch (err) {
       console.error("User fetch failed", err);
       localStorage.removeItem("alumnet-user");
@@ -71,6 +109,22 @@ export const AppContextProvider = ({ children }) => {
   useEffect(() => {
     fetchUser();
   }, []);
+
+  const createJob = async (jobData) => {
+    try {
+      const token = localStorage.getItem("token");
+      await axios.post(`${baseURL}/api/jobs`, jobData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      await fetchFeed();
+      return { success: true };
+    } catch (err) {
+      console.error("Job creation failed", err);
+      return { success: false, error: err.response?.data?.message || "Failed to create job" };
+    }
+  };
 
   return (
     <AppContext.Provider
@@ -87,7 +141,12 @@ export const AppContextProvider = ({ children }) => {
         events,
         setEvents,
         fetchFeed,
-        createEvent
+        createEvent,
+        createJob,
+        students,
+        fetchInstituteStudents,
+        institute,
+        fetchInstitute
       }}
     >
       {children}

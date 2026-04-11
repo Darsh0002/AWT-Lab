@@ -1,8 +1,36 @@
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo, useEffect, useContext } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, Filter, GraduationCap, Briefcase, Linkedin, MessageSquare, ChevronDown, X, Loader2, User } from "lucide-react";
+import { Search, Filter, GraduationCap, Briefcase, Linkedin, MessageSquare, ChevronDown, X, Loader2, User, Mail, Phone, ExternalLink, Building2, MapPin } from "lucide-react";
 import axios from "axios";
 import toast from "react-hot-toast";
+import { AppContext } from "../context/AppContext";
+
+const modalVariants = {
+  hidden: { opacity: 0, scale: 0.9, y: 30 },
+  visible: {
+    opacity: 1,
+    scale: 1,
+    y: 0,
+    transition: {
+      type: "spring",
+      damping: 25,
+      stiffness: 300,
+      staggerChildren: 0.1,
+      delayChildren: 0.2,
+    },
+  },
+  exit: {
+    opacity: 0,
+    scale: 0.9,
+    y: 20,
+    transition: { duration: 0.2 },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0 },
+};
 
 const Avatar = ({ name }) => {
   const initials = name
@@ -25,7 +53,7 @@ const Avatar = ({ name }) => {
   );
 };
 
-const AlumniCard = ({ alumnus, index }) => (
+const AlumniCard = ({ alumnus, index, onViewDetails }) => (
   <motion.div
     initial={{ opacity: 0, y: 20 }}
     animate={{ opacity: 1, y: 0 }}
@@ -64,11 +92,11 @@ const AlumniCard = ({ alumnus, index }) => (
 
       <div className="flex items-center gap-2">
         <button 
-          onClick={() => toast.success(`Request sent to ${alumnus.full_name}`)}
+          onClick={() => onViewDetails(alumnus)}
           className="flex-1 py-2.5 bg-indigo-600 text-white rounded-xl text-xs font-bold shadow-lg shadow-indigo-100 hover:bg-indigo-700 transition-all active:scale-95 flex items-center justify-center gap-2"
         >
           <MessageSquare className="w-3.5 h-3.5" />
-          Connect
+          View Details
         </button>
         {alumnus.linkedinuri && (
           <a 
@@ -86,8 +114,10 @@ const AlumniCard = ({ alumnus, index }) => (
 );
 
 const AlumniDirectory = () => {
-  const [alumni, setAlumni] = useState([]);
+  const { students, fetchInstituteStudents } = useContext(AppContext);
   const [loading, setLoading] = useState(true);
+  const [selectedStudent, setSelectedStudent] = useState(null);
+  const [showStudentModal, setShowStudentModal] = useState(false);
   const [query, setQuery] = useState("");
   const [year, setYear] = useState("");
   const [company, setCompany] = useState("");
@@ -95,40 +125,24 @@ const AlumniDirectory = () => {
   const [isFilterVisible, setIsFilterVisible] = useState(false);
 
   useEffect(() => {
-    fetchAlumni();
+    fetchInstituteStudents().finally(() => setLoading(false));
   }, []);
 
-  const fetchAlumni = async () => {
-    try {
-      setLoading(true);
-      const token = localStorage.getItem("token");
-      const response = await axios.get("http://localhost:5000/api/alumni", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setAlumni(response.data.alumni || []);
-    } catch (error) {
-      console.error("Error fetching alumni:", error);
-      toast.error("Failed to load alumni directory");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Extract filter options dynamically
-  const graduationYears = [...new Set(alumni.map(a => a.passoutYear))].filter(Boolean).sort((a, b) => b - a);
-  const companies = [...new Set(alumni.map(a => a.company))].filter(Boolean).sort();
-  const branches = [...new Set(alumni.map(a => a.branch))].filter(Boolean).sort();
+  // Extract filter options dynamically from students context
+  const graduationYears = [...new Set(students.map(a => a.passoutYear))].filter(Boolean).sort((a, b) => b - a);
+  const companies = [...new Set(students.map(a => a.company))].filter(Boolean).sort();
+  const branches = [...new Set(students.map(a => a.branch))].filter(Boolean).sort();
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return alumni.filter((a) => {
+    return students.filter((a) => {
       const matchYear = year ? a.passoutYear?.toString() === year : true;
       const matchCompany = company ? a.company === company : true;
       const matchBranch = branch ? a.branch === branch : true;
       const matchQuery = !q || [a.full_name, a.company, a.job, a.branch, a.course].some(s => s?.toLowerCase().includes(q));
       return matchYear && matchCompany && matchBranch && matchQuery;
     });
-  }, [alumni, query, year, company, branch]);
+  }, [students, query, year, company, branch]);
 
   return (
     <div className="min-h-screen bg-slate-50 font-inter">
@@ -240,7 +254,15 @@ const AlumniDirectory = () => {
           <>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
               {filtered.map((alumnus, idx) => (
-                <AlumniCard key={alumnus._id || idx} index={idx} alumnus={alumnus} />
+                <AlumniCard 
+                  key={alumnus._id || idx} 
+                  index={idx} 
+                  alumnus={alumnus} 
+                  onViewDetails={(s) => {
+                    setSelectedStudent(s);
+                    setShowStudentModal(true);
+                  }}
+                />
               ))}
             </div>
 
@@ -259,6 +281,203 @@ const AlumniDirectory = () => {
             )}
           </>
         )}
+
+        {/* Student Details Modal */}
+        <AnimatePresence>
+          {showStudentModal && selectedStudent && (
+            <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setShowStudentModal(false)}
+                className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
+              />
+              <motion.div
+                variants={modalVariants}
+                initial="hidden"
+                animate="visible"
+                exit="exit"
+                className="relative w-full max-w-4xl bg-white rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.15)] overflow-hidden border border-slate-200"
+              >
+                {/* Formal Header */}
+                <div className="bg-slate-900 px-10 py-8 flex items-center justify-between relative overflow-hidden">
+                  <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl -mr-32 -mt-32" />
+                  <div className="flex items-center gap-8 relative z-10">
+                    <div className="w-20 h-20 rounded-2xl bg-indigo-600 flex items-center justify-center text-white text-3xl font-bold font-outfit shadow-lg shadow-indigo-900/20">
+                      {selectedStudent.full_name?.charAt(0)}
+                    </div>
+                    <div>
+                      <h2 className="text-2xl font-bold text-white font-outfit">
+                        {selectedStudent.full_name}
+                      </h2>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => setShowStudentModal(false)}
+                    className="p-3 bg-white/5 hover:bg-white/10 text-white/60 hover:text-white rounded-xl transition-all border border-white/10 z-10"
+                  >
+                    <X size={20} />
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-3 divide-y lg:divide-y-0 lg:divide-x divide-slate-100 bg-white">
+                  {/* Personal & Contact Section */}
+                  <div className="p-8 space-y-8">
+                    <div className="space-y-6">
+                      <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 flex items-center gap-2">
+                        Personal Details
+                      </h3>
+                      <div className="space-y-5">
+                        <div className="flex items-start gap-4">
+                          <div className="p-2 bg-slate-50 text-slate-400 rounded-lg">
+                            <Mail size={16} />
+                          </div>
+                          <div className="min-w-0">
+                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                              Email Address
+                            </p>
+                            <p className="text-sm font-semibold text-slate-800 break-all">
+                              {selectedStudent.email}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-start gap-4">
+                          <div className="p-2 bg-slate-50 text-slate-400 rounded-lg">
+                            <Phone size={16} />
+                          </div>
+                          <div>
+                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                              Mobile Number
+                            </p>
+                            <p className="text-sm font-semibold text-slate-800">
+                              {selectedStudent.phone || "Not Updated"}
+                            </p>
+                          </div>
+                        </div>
+                        {selectedStudent.linkedinuri && (
+                          <div className="flex items-start gap-4">
+                            <div className="p-2 bg-slate-50 text-slate-400 rounded-lg">
+                              <Linkedin size={16} />
+                            </div>
+                            <div className="w-full">
+                              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                                Professional Link
+                              </p>
+                              <a
+                                href={selectedStudent.linkedinuri}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-sm font-semibold text-indigo-600 hover:underline flex items-center gap-1.5 mt-0.5"
+                              >
+                                LinkedIn Profile <ExternalLink size={12} />
+                              </a>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Academic Information Section */}
+                  <div className="p-8 bg-slate-50/30 space-y-6 lg:col-span-1">
+                    <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 flex items-center gap-2">
+                      Academic Record
+                    </h3>
+                    <div className="space-y-6">
+                      <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm space-y-4">
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                              Enrollment No.
+                            </p>
+                            <p className="text-sm font-semibold text-slate-800 mt-1">
+                              {selectedStudent.enrollment_no}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                              Passout Year
+                            </p>
+                            <p className="text-sm font-semibold text-slate-800 mt-1">
+                              {selectedStudent.passoutYear}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="pt-4 border-t border-slate-50">
+                          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                            Degree / Course
+                          </p>
+                          <p className="text-sm font-semibold text-slate-800 mt-1">
+                            {selectedStudent.course || "B.Tech Engineering"}
+                          </p>
+                        </div>
+                        <div className="pt-2">
+                          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                            Department / Branch
+                          </p>
+                          <p className="text-sm font-semibold text-slate-800 mt-1">
+                            {selectedStudent.branch}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Professional Background Section */}
+                  <div className="p-8 space-y-6 lg:col-span-1">
+                    <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 flex items-center gap-2">
+                      Professional Information
+                    </h3>
+                    <div className="space-y-4">
+                      <div className="p-6 bg-white border border-slate-100 rounded-2xl shadow-sm space-y-6">
+                        <div className="flex items-start gap-4">
+                          <div className="p-3 bg-indigo-50 text-indigo-600 rounded-xl">
+                            <Briefcase size={20} />
+                          </div>
+                          <div>
+                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                              Current Designation
+                            </p>
+                            <p className="text-base font-bold text-slate-800 leading-tight mt-1">
+                              {selectedStudent.job || "Industry Professional"}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-start gap-4">
+                          <div className="p-3 bg-emerald-50 text-emerald-600 rounded-xl">
+                            <Building2 size={20} />
+                          </div>
+                          <div>
+                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                              Organization / Company
+                            </p>
+                            <p className="text-base font-bold text-slate-800 leading-tight mt-1">
+                              {selectedStudent.company || "Not Disclosed"}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-start gap-4">
+                          <div className="p-3 bg-amber-50 text-amber-600 rounded-xl">
+                            <MapPin size={20} />
+                          </div>
+                          <div>
+                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                              Base Location
+                            </p>
+                            <p className="text-base font-bold text-slate-800 leading-tight mt-1">
+                              {selectedStudent.location || "On-Site / Remote"}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
       </main>
 
       {/* Footer Stats */}
@@ -266,7 +485,7 @@ const AlumniDirectory = () => {
         <div className="max-w-7xl mx-auto px-4">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-12 text-center">
             {[
-              { label: "Total Members", value: alumni.length },
+              { label: "Total Members", value: students.length },
               { label: "Graduating Years", value: graduationYears.length },
               { label: "Active Companies", value: companies.length },
               { label: "Network Growth", value: "+12%" }

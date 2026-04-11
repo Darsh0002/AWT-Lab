@@ -87,8 +87,7 @@ const AdminDashboard = () => {
   const fileInputRef = useRef(null);
   const [isUploading, setIsUploading] = useState(false);
 
-  const { events: contextEvents, jobs, fetchFeed } = useContext(AppContext);
-  const [studentData, setStudentData] = useState([]);
+  const { events: contextEvents, jobs, fetchFeed, students, fetchInstituteStudents, institute, fetchInstitute } = useContext(AppContext);
   const [loadingAlumni, setLoadingAlumni] = useState(true);
 
   const [showEventModal, setShowEventModal] = useState(false);
@@ -108,22 +107,13 @@ const AdminDashboard = () => {
 
   useEffect(() => {
     fetchFeed();
-    fetchStudents();
+    fetchInstituteStudents().finally(() => setLoadingAlumni(false));
+    fetchInstitute();
   }, []);
 
-  const fetchStudents = async () => {
-    try {
-      const token = localStorage.getItem("token");
-      const response = await axios.get(
-        "http://localhost:5000/api/admin/students",
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        },
-      );
-      const students = response.data.students || [];
-      setStudentData(students);
-
-      // Compute analytics
+  // Compute analytics based on students from context
+  useEffect(() => {
+    if (students) {
       const branchCount = {};
       const batchCount = {};
       const companyCount = {};
@@ -150,13 +140,8 @@ const AdminDashboard = () => {
           .sort()
           .map((year) => ({ year, alumni: batchCount[year] })),
       );
-    } catch (error) {
-      console.error("Error fetching alumni:", error);
-      toast.error("Failed to load alumni data");
-    } finally {
-      setLoadingAlumni(false);
     }
-  };
+  }, [students]);
 
   const uploadFile = async () => {
     if (!file) {
@@ -221,6 +206,7 @@ const AdminDashboard = () => {
   };
 
   const navItems = [
+    { id: "profile", label: "Profile", icon: Building2 },
     { id: "analytics", label: "Analytics", icon: LayoutDashboard },
     { id: "Directory", label: "Directory", icon: Users },
     { id: "events", label: "Events", icon: Calendar },
@@ -247,7 +233,7 @@ const AdminDashboard = () => {
               {[
                 {
                   label: "Total Alumni",
-                  value: studentData.length,
+                  value: students.length,
                   icon: Users,
                   color: "bg-indigo-50 border-indigo-100 text-indigo-600",
                 },
@@ -268,7 +254,7 @@ const AdminDashboard = () => {
                     <stat.icon size={24} />
                   </div>
                   <div>
-                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1">
                       {stat.label}
                     </p>
                     <h3 className="text-2xl font-black text-slate-900 font-outfit">
@@ -426,7 +412,7 @@ const AdminDashboard = () => {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-50">
-                    {studentData
+                    {students
                       .filter((m) =>
                         m.full_name
                           .toLowerCase()
@@ -446,7 +432,7 @@ const AdminDashboard = () => {
                                 <p className="font-bold text-slate-900 font-outfit">
                                   {member.full_name}
                                 </p>
-                                <p className="text-xs font-medium text-slate-400">
+                                <p className="text-xs font-medium text-slate-500">
                                   {member.email}
                                 </p>
                               </div>
@@ -584,6 +570,120 @@ const AdminDashboard = () => {
             </div>
           </motion.div>
         );
+      case "profile":
+        return (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="max-w-4xl mx-auto"
+          >
+            <div className="premium-card overflow-hidden">
+              <div className="bg-slate-900 p-12 relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl -mr-48 -mt-48" />
+                <div className="relative z-10 flex items-center gap-8">
+                  <div className="w-24 h-24 bg-indigo-600 rounded-[2rem] flex items-center justify-center text-white shadow-2xl shadow-indigo-900/40">
+                    <Building2 size={48} />
+                  </div>
+                  <div>
+                    <h2 className="text-3xl font-black text-white font-outfit tracking-tight uppercase">
+                      Institute Profile
+                    </h2>
+                    <p className="text-indigo-300 font-bold text-xs uppercase tracking-[0.2em] mt-2">
+                      Official Details & Settings
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-12 space-y-12 bg-white">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+                  <div className="space-y-2">
+                    <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">
+                      Institute Name
+                    </p>
+                    <div className="flex items-center gap-3 p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                      <GraduationCap className="text-indigo-600" size={20} />
+                      <span className="font-bold text-slate-900">
+                        {institute?.name || "Loading..."}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">
+                      Official Email
+                    </p>
+                    <div className="flex items-center gap-3 p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                      <Mail className="text-indigo-600" size={20} />
+                      <span className="font-bold text-slate-900">
+                        {institute?.email || "Not Available"}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">
+                      Contact Number
+                    </p>
+                    <div className="flex items-center gap-3 p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                      <Phone className="text-indigo-600" size={20} />
+                      <span className="font-bold text-slate-900">
+                        {institute?.phone || "Not Provided"}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">
+                      Location (City, State)
+                    </p>
+                    <div className="flex items-center gap-3 p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                      <MapPin className="text-indigo-600" size={20} />
+                      <span className="font-bold text-slate-900">
+                        {institute?.city}, {institute?.state}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2 md:col-span-2">
+                    <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">
+                      Full Address
+                    </p>
+                    <div className="flex items-start gap-3 p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                      <Building2 className="text-indigo-600 mt-1" size={20} />
+                      <span className="font-bold text-slate-900">
+                        {institute?.address}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2 md:col-span-2">
+                    <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">
+                      Official Website
+                    </p>
+                    <div className="flex items-center gap-3 p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                      <Globe className="text-indigo-600" size={20} />
+                      {institute?.website ? (
+                        <a
+                          href={institute.website}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="font-bold text-indigo-600 hover:underline flex items-center gap-2"
+                        >
+                          {institute.website} <ExternalLink size={14} />
+                        </a>
+                      ) : (
+                        <span className="font-bold text-slate-400 italic">
+                          No website provided
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        );
       default:
         return (
           <div className="py-20 text-center text-slate-400 italic font-medium">
@@ -599,7 +699,7 @@ const AdminDashboard = () => {
       <motion.aside
         initial={false}
         animate={{ width: isSidebarOpen ? 280 : 80 }}
-        className="fixed lg:relative z-[100] h-screen bg-slate-900 text-slate-400 p-4 flex flex-col transition-all duration-500 shadow-2xl overflow-hidden"
+        className="fixed lg:relative z-[100] h-screen bg-slate-900 text-slate-300 p-4 flex flex-col transition-all duration-500 shadow-2xl overflow-hidden"
       >
         <div className="flex items-center gap-3 px-4 mb-12">
           <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-xl shadow-indigo-900/40">
@@ -607,14 +707,21 @@ const AdminDashboard = () => {
           </div>
           <AnimatePresence>
             {isSidebarOpen && (
-              <motion.span
+              <motion.div
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0 }}
-                className="text-xl font-black text-white font-outfit tracking-tighter uppercase whitespace-nowrap"
+                className="flex flex-col min-w-0"
               >
-                Alum<span className="text-indigo-400">Net</span> Admin
-              </motion.span>
+                <span className="text-xl font-black text-white font-outfit tracking-tighter uppercase whitespace-nowrap">
+                  Alum<span className="text-indigo-400">Net</span> Admin
+                </span>
+                {institute && (
+                  <span className="text-[9px] font-bold text-indigo-400/80 uppercase tracking-widest truncate transition-all duration-300">
+                    {institute.name}
+                  </span>
+                )}
+              </motion.div>
             )}
           </AnimatePresence>
         </div>

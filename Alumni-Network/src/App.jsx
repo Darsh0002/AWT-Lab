@@ -59,7 +59,7 @@ const App = () => {
 
         {/* Shared Protected Routes (Accessible by both roles) */}
         <Route
-          path="/alumni-directory"
+          path="/directory"
           element={
             <ProtectedRoute>
               <Navbar />
