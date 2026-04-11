@@ -31,6 +31,22 @@ export const AppContextProvider = ({ children }) => {
     }
   };
 
+  const createEvent = async (eventData) => {
+    try {
+      const token = localStorage.getItem("token");
+      await axios.post(`${baseURL}/api/events`, eventData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      await fetchFeed();
+      return { success: true };
+    } catch (err) {
+      console.error("Event creation failed", err);
+      return { success: false, error: err.response?.data?.message || "Failed to create event" };
+    }
+  };
+
   const fetchUser = () => {
     try {
       const token = localStorage.getItem("alumnet-user");
@@ -70,7 +86,8 @@ export const AppContextProvider = ({ children }) => {
         setPosts,
         events,
         setEvents,
-        fetchFeed
+        fetchFeed,
+        createEvent
       }}
     >
       {children}

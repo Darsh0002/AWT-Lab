@@ -47,7 +47,7 @@ export default function LoginPage() {
       localStorage.setItem("token", data.token);
       localStorage.setItem("alumnet-user", JSON.stringify(data.user));
 
-      toast.success(`Welcome back, ${data.user.name}!`);
+      toast.success(`Welcome back!`);
 
       if (data.user.role === "admin") {
         navigate("/admin-dashboard");
@@ -70,8 +70,8 @@ export default function LoginPage() {
           <div className="absolute top-0 -left-1/4 w-1/2 h-full bg-indigo-500/20 blur-[120px] rounded-full animate-pulse" />
           <div className="absolute bottom-0 -right-1/4 w-1/2 h-full bg-blue-500/20 blur-[120px] rounded-full animate-pulse delay-700" />
         </div>
-        
-        <motion.div 
+
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="relative z-10 text-center"
@@ -80,10 +80,13 @@ export default function LoginPage() {
             <Building2 className="w-10 h-10 text-white" />
           </div>
           <h1 className="text-4xl font-black text-white mb-6 font-outfit uppercase tracking-tighter">
-            Connect. <br />Grow. <br />Excel.
+            Connect. <br />
+            Grow. <br />
+            Excel.
           </h1>
           <p className="text-indigo-100 text-lg max-w-sm mx-auto leading-relaxed">
-            The premium networking ecosystem for modern educational institutions and their graduates.
+            The premium networking ecosystem for modern educational institutions
+            and their graduates.
           </p>
         </motion.div>
 
@@ -92,21 +95,21 @@ export default function LoginPage() {
           {[...Array(6)].map((_, i) => (
             <motion.div
               key={i}
-              animate={{ 
+              animate={{
                 y: [0, -20, 0],
-                opacity: [0.3, 0.6, 0.3]
+                opacity: [0.3, 0.6, 0.3],
               }}
-              transition={{ 
-                duration: 3 + i, 
+              transition={{
+                duration: 3 + i,
                 repeat: Infinity,
-                delay: i * 0.5 
+                delay: i * 0.5,
               }}
               className="absolute bg-white rounded-full blur-xl"
-              style={{ 
+              style={{
                 width: Math.random() * 100 + 50,
                 height: Math.random() * 100 + 50,
                 top: `${Math.random() * 100}%`,
-                left: `${Math.random() * 100}%`
+                left: `${Math.random() * 100}%`,
               }}
             />
           ))}
@@ -115,20 +118,26 @@ export default function LoginPage() {
 
       {/* Right Side: Form */}
       <div className="flex flex-col justify-center items-center p-8 sm:p-12 bg-white">
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           className="w-full max-w-md"
         >
           <div className="mb-10">
-            <h2 className="text-3xl font-bold text-slate-900 mb-2 font-outfit">Welcome Back</h2>
-            <p className="text-slate-500 font-medium">Please enter your details to access your account.</p>
+            <h2 className="text-3xl font-bold text-slate-900 mb-2 font-outfit">
+              Welcome Back
+            </h2>
+            <p className="text-slate-500 font-medium">
+              Please enter your details to access your account.
+            </p>
           </div>
 
           <form className="space-y-6" onSubmit={handleSubmit}>
             {/* Role Selection */}
             <div className="space-y-2">
-              <label className="text-sm font-bold text-slate-700 ml-1">Account Type</label>
+              <label className="text-sm font-bold text-slate-700 ml-1">
+                Account Type
+              </label>
               <div className="grid grid-cols-2 gap-3">
                 {roles.map((r) => (
                   <button
@@ -136,8 +145,8 @@ export default function LoginPage() {
                     type="button"
                     onClick={() => setRole(r.value)}
                     className={`px-4 py-3 rounded-xl text-sm font-semibold border transition-all duration-300 ${
-                      role === r.value 
-                        ? "bg-indigo-50 border-indigo-600 text-indigo-600 shadow-sm" 
+                      role === r.value
+                        ? "bg-indigo-50 border-indigo-600 text-indigo-600 shadow-sm"
                         : "bg-white border-slate-200 text-slate-600 hover:border-indigo-200 hover:bg-slate-50"
                     }`}
                   >
@@ -149,7 +158,9 @@ export default function LoginPage() {
 
             {/* Email Field */}
             <div className="space-y-2">
-              <label className="text-sm font-bold text-slate-700 ml-1">Email Address</label>
+              <label className="text-sm font-bold text-slate-700 ml-1">
+                Email Address
+              </label>
               <div className="relative group">
                 <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-indigo-600 transition-colors" />
                 <input
@@ -166,15 +177,16 @@ export default function LoginPage() {
             {/* Password Field */}
             <div className="space-y-2">
               <div className="flex justify-between items-center ml-1">
-                <label className="text-sm font-bold text-slate-700">Password</label>
-                <button type="button" className="text-xs font-bold text-indigo-600 hover:text-indigo-700">Forgot?</button>
+                <label className="text-sm font-bold text-slate-700">
+                  Password
+                </label>
               </div>
               <div className="relative group">
                 <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-indigo-600 transition-colors" />
                 <input
                   type="password"
                   className="w-full pl-12 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-indigo-100 focus:border-indigo-600 transition-all font-medium text-slate-900 placeholder:text-slate-400"
-                  placeholder="Create a password"
+                  placeholder="Enter your password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
@@ -200,7 +212,10 @@ export default function LoginPage() {
 
           <p className="mt-8 text-center text-slate-500 font-medium">
             Don't have an account?{" "}
-            <Link to="/register-institute" className="text-indigo-600 font-bold hover:underline">
+            <Link
+              to="/register-institute"
+              className="text-indigo-600 font-bold hover:underline"
+            >
               Join the Network
             </Link>
           </p>
