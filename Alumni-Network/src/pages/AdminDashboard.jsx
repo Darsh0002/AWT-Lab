@@ -78,7 +78,7 @@ const itemVariants = {
 };
 
 const AdminDashboard = () => {
-  const [activeSection, setActiveSection] = useState("analytics");
+  const [activeSection, setActiveSection] = useState("profile");
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);

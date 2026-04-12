@@ -127,13 +127,7 @@ const Events = () => {
         <div className="mb-20">
           <div className="flex justify-between items-end mb-10">
             <div>
-              <h2 className="text-[10px] font-black uppercase tracking-[0.3em] text-indigo-600 mb-2">Editor's Choice</h2>
               <h3 className="text-4xl font-black text-slate-900 font-outfit tracking-tight uppercase">Featured Events</h3>
-            </div>
-            <div className="hidden md:flex gap-4">
-              <button className="p-4 rounded-2xl bg-white text-slate-400 border border-slate-100 hover:text-indigo-600 hover:border-indigo-100 transition-all shadow-sm">
-                <Filter size={20} />
-              </button>
             </div>
           </div>
 
@@ -149,9 +143,6 @@ const Events = () => {
                 >
                   <div className="h-64 bg-slate-900 relative overflow-hidden">
                     <div className="absolute inset-0 bg-gradient-to-br from-indigo-600/80 to-slate-950 opacity-90 transition-opacity group-hover:opacity-100" />
-                    <div className="absolute top-6 left-6 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white text-[10px] font-black uppercase tracking-widest">
-                      Featured Experience
-                    </div>
                     <div className="absolute inset-0 flex items-center justify-center opacity-10 group-hover:scale-110 transition-transform duration-700">
                       <Trophy size={160} className="text-white" />
                     </div>
@@ -189,7 +180,7 @@ const Events = () => {
               ))
             ) : (
               <div className="col-span-2 text-center py-24 bg-white rounded-[2.5rem] border border-dashed border-slate-200 italic text-slate-400 font-medium">
-                Designing future experiences. Stay tuned.
+                No events found.
               </div>
             )}
           </div>
